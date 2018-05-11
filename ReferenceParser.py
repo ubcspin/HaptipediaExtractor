@@ -35,11 +35,11 @@ def parseReference(XMLFile):
         os.makedirs(utf8_paper_title)
 
     os.chdir(utf8_paper_title)
-    #
-    # if not os.path.exists('References'):
-    #     os.makedirs('References')
-    #
-    # os.chdir('References')
+
+    if not os.path.exists('References'):
+        os.makedirs('References')
+
+    os.chdir('References')
     #
     # for biblStruct in root.iter("{http://www.tei-c.org/ns/1.0}biblStruct"):
     #
