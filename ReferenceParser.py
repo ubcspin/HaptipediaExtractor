@@ -19,7 +19,9 @@ def parseReference(XMLFile):
     root = tree.getroot()
 
     paper_title = next(root.iter("{http://www.tei-c.org/ns/1.0}title")).text
-    print(paper_title)
+    print("pre-translation: " + paper_title)
+    paper_title = paper_title.translate(forbidden_chars_table)
+    print("post-translation: " + paper_title)
 
     if len(paper_title) > 150:
         paper_title = paper_title[:150]
@@ -43,8 +45,15 @@ def parseReference(XMLFile):
 
             ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}analytic")
 
+            for author in ref.iter("{http://www.tei-c.org/ns/1.0}author"):
+                persName = author.find("{http://www.tei-c.org/ns/1.0}persName")
+                forename = persName.find("{http://www.tei-c.org/ns/1.0}forename").text # doesn't take care of middle names
+                surname = persName.find("{http://www.tei-c.org/ns/1.0}surname").text
+
+                print(forename + "." + surname)
+
             if ref is None:
-                # title is either in analytic element or monogr element
+                # title is either an analytic element or monogr element in the XML File
                 ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
 
             title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
@@ -65,6 +74,8 @@ def createRefFile(title, count):
 
     with open(filename, "w+", encoding='utf8') as refFile:
         refFile.write("Title: " + title)
+
+
 
 
 
