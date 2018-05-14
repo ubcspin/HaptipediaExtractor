@@ -56,8 +56,7 @@ def createRefFile(biblStruct):
             ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
 
         try:
-            title = ref.find("{http://www.tei-c.org/ns/1.0}title").text  # couple this alongside ref perhaps?
-            # print(title)
+            title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
 
             if title is not None:
                 global count
@@ -82,7 +81,31 @@ def writePublishersToFile(title, refFile, biblStruct):
     if pubTitle is not title:
         refFile.write("\nPublisher: " + pubTitle)
 
-            
+    imprint = pubRef.find("{http://www.tei-c.org/ns/1.0}imprint")
+
+    publisher = imprint.find("{http://www.tei-c.org/ns/1.0}publisher")
+    if publisher is not None:
+        publisher = publisher.text
+        refFile.write(", " + publisher)
+
+    dateElem = imprint.find("{http://www.tei-c.org/ns/1.0}date")
+    if dateElem.get('type') == "published":
+        date = dateElem.get('when')
+
+    refFile.write("\nDate: " + date)
+
+    for biblScope in imprint.findall("{http://www.tei-c.org/ns/1.0}biblScope"):
+
+        unit = biblScope.get('unit')
+        val = biblScope.text
+
+        if unit == 'page':
+            refFile.write("\nPages: " + biblScope.get('from') + " to " + biblScope.get('to'))
+        elif unit == 'volume':
+            refFile.write("\nVolume: " + val)
+        elif unit == 'issue':
+            refFile.write("\nIssue" + val)
+
 
 def writeAuthorsToFile(refFile, ref):
 
