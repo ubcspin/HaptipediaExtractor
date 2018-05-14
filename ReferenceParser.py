@@ -45,16 +45,17 @@ def parseReference(XMLFile):
 
             ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}analytic")
 
-            for author in ref.iter("{http://www.tei-c.org/ns/1.0}author"):
-                persName = author.find("{http://www.tei-c.org/ns/1.0}persName")
-                forename = persName.find("{http://www.tei-c.org/ns/1.0}forename").text # doesn't take care of middle names
-                surname = persName.find("{http://www.tei-c.org/ns/1.0}surname").text
-
-                print(forename + "." + surname)
-
             if ref is None:
                 # title is either an analytic element or monogr element in the XML File
                 ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
+
+            # for author in ref.iter("{http://www.tei-c.org/ns/1.0}author"):
+            #     persName = author.find("{http://www.tei-c.org/ns/1.0}persName")
+            #     forename = persName.find(
+            #         "{http://www.tei-c.org/ns/1.0}forename").text  # doesn't take care of middle names
+            #     surname = persName.find("{http://www.tei-c.org/ns/1.0}surname").text
+            #
+            #     print(forename + "." + surname)
 
             title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
             print(title)
@@ -62,18 +63,29 @@ def parseReference(XMLFile):
             global count
             count += 1
 
-            createRefFile(title, count)
+            createRefFile(title, count, ref)
 
 
     os.chdir('..')
 
 
-def createRefFile(title, count):
+def createRefFile(title, count, ref):
 
     filename = "[" + str(count) + "].txt"
 
     with open(filename, "w+", encoding='utf8') as refFile:
         refFile.write("Title: " + title)
+
+        refFile.write("\nAuthors:")
+
+        for author in ref.iter("{http://www.tei-c.org/ns/1.0}author"):
+            persName = author.find("{http://www.tei-c.org/ns/1.0}persName")
+            forename = persName.find(
+                "{http://www.tei-c.org/ns/1.0}forename").text  # doesn't take care of middle names
+            surname = persName.find("{http://www.tei-c.org/ns/1.0}surname").text
+
+            refFile.write("\n" + surname + ", " + forename)
+
 
 
 
