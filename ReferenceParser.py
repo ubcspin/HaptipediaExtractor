@@ -57,7 +57,7 @@ def createRefFile(biblStruct):
 
         try:
             title = ref.find("{http://www.tei-c.org/ns/1.0}title").text  # couple this alongside ref perhaps?
-            print(title)
+            # print(title)
 
             if title is not None:
                 global count
@@ -68,12 +68,21 @@ def createRefFile(biblStruct):
                 with open(filename, "w+", encoding='utf8') as refFile:
                     refFile.write("Title: " + title)
                     writeAuthorsToFile(refFile, ref)
+                    writePublishersToFile(title, refFile, biblStruct)
 
         except:
             pass
 
 
+def writePublishersToFile(title, refFile, biblStruct):
 
+    pubRef = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
+    pubTitle = pubRef.find("{http://www.tei-c.org/ns/1.0}title").text
+
+    if pubTitle is not title:
+        refFile.write("\nPublisher: " + pubTitle)
+
+            
 
 def writeAuthorsToFile(refFile, ref):
 
