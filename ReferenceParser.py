@@ -8,8 +8,8 @@ import xml.etree.ElementTree as ET
 # 2.) Reference Authors
 # 3.) Conference/Journal Published
 # 4.) Year it was published
-# 5.) Plus More!!!
 # XML file taken from GROBID API Call
+# XML files must be in the same place as the
 
 forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 
@@ -40,54 +40,68 @@ def parseReference(XMLFile):
     os.chdir('References')
 
     for biblStruct in root.iter("{http://www.tei-c.org/ns/1.0}biblStruct"):
-
-        if len(biblStruct.attrib.keys()) != 0:   # used to separate paper title from reference titles
-
-            ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}analytic")
-
-            if ref is None:
-                # title is either an analytic element or monogr element in the XML File
-                ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
-
-            # for author in ref.iter("{http://www.tei-c.org/ns/1.0}author"):
-            #     persName = author.find("{http://www.tei-c.org/ns/1.0}persName")
-            #     forename = persName.find(
-            #         "{http://www.tei-c.org/ns/1.0}forename").text  # doesn't take care of middle names
-            #     surname = persName.find("{http://www.tei-c.org/ns/1.0}surname").text
-            #
-            #     print(forename + "." + surname)
-
-            title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
-            print(title)
-
-            global count
-            count += 1
-
-            createRefFile(title, count, ref)
-
+        createRefFile(biblStruct)
 
     os.chdir('..')
 
 
-def createRefFile(title, count, ref):
+def createRefFile(biblStruct):
 
-    filename = "[" + str(count) + "].txt"
+    if len(biblStruct.attrib.keys()) != 0:  # used to separate paper title from reference titles
 
-    with open(filename, "w+", encoding='utf8') as refFile:
-        refFile.write("Title: " + title)
+        ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}analytic")
 
-        refFile.write("\nAuthors:")
+        if ref is None:
+            # title is either an analytic element or monogr element in the XML File
+            ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
 
-        for author in ref.iter("{http://www.tei-c.org/ns/1.0}author"):
-            persName = author.find("{http://www.tei-c.org/ns/1.0}persName")
-            forename = persName.find(
-                "{http://www.tei-c.org/ns/1.0}forename").text  # doesn't take care of middle names
-            surname = persName.find("{http://www.tei-c.org/ns/1.0}surname").text
+        try:
+            title = ref.find("{http://www.tei-c.org/ns/1.0}title").text  # couple this alongside ref perhaps?
+            print(title)
 
-            refFile.write("\n" + surname + ", " + forename)
+            if title is not None:
+                global count
+                count += 1
+
+                filename = "[" + str(count) + "].txt"
+
+                with open(filename, "w+", encoding='utf8') as refFile:
+                    refFile.write("Title: " + title)
+                    writeAuthorsToFile(refFile, ref)
+
+        except:
+            pass
 
 
 
+
+def writeAuthorsToFile(refFile, ref):
+
+    refFile.write("\nAuthors:")
+
+    for author in ref.iter("{http://www.tei-c.org/ns/1.0}author"):
+        persName = author.find("{http://www.tei-c.org/ns/1.0}persName")
+
+        try:
+            forename = persName.find("{http://www.tei-c.org/ns/1.0}forename")  # doesn't account mid names
+            surname = persName.find("{http://www.tei-c.org/ns/1.0}surname")
+
+            if forename is None or surname is None:
+                if forename is None:
+                    surname = surname.text
+                    refFile.write("\n" + surname)
+
+                elif surname is None:
+                    forename = forename.text
+                    refFile.write("\n" + forename)
+
+            else:
+                forename = forename.text
+                surname = surname.text
+                refFile.write("\n" + surname + ", " + forename)
+
+        except:
+            pass
 
 
 
@@ -95,3 +109,4 @@ for file in glob.glob("*.xml"):
     count = 0
     parseReference(file)
     print(count)
+    os.chdir('..')
