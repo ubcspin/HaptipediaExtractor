@@ -1,7 +1,5 @@
 import os
-import io
 import glob
-import string
 import xml.etree.ElementTree as ET
 
 # Parser to extract References from an XML file
@@ -13,8 +11,7 @@ import xml.etree.ElementTree as ET
 # 5.) Plus More!!!
 # XML file taken from GROBID API Call
 
-
-forbidden_chars_table = string.maketrans('\/*?:"<>|', '_________')
+forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 
 
 def parseReference(XMLFile):
@@ -22,8 +19,7 @@ def parseReference(XMLFile):
     root = tree.getroot()
 
     paper_title = next(root.iter("{http://www.tei-c.org/ns/1.0}title")).text
-    if type(paper_title) is not unicode:
-        paper_title = unicode(paper_title, 'ascii')  # to ensure we are always working with unicode
+    print(paper_title)
 
     if len(paper_title) > 150:
         paper_title = paper_title[:150]
@@ -52,6 +48,7 @@ def parseReference(XMLFile):
                 ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
 
             title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
+            print(title)
 
             global count
             count += 1
@@ -66,13 +63,12 @@ def createRefFile(title, count):
 
     filename = "[" + str(count) + "].txt"
 
-    with open(filename, "w+") as refFile:
-        refFile.write("Title: " + (title).encode('utf8'))
+    with open(filename, "w+", encoding='utf8') as refFile:
+        refFile.write("Title: " + title)
+
 
 
 for file in glob.glob("*.xml"):
     count = 0
     parseReference(file)
-    print count
-
-
+    print(count)
