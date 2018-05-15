@@ -1,15 +1,19 @@
 import os
 import glob
 import xml.etree.ElementTree as ET
+import time
 import SectionParser
 import ReferenceParser
 
+# MainParser that can be called from the commandline
+# REQUIRES XML files to be inside a folder called "outputs"
+
 forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
+start_time = time.time()
 
 def main():
 
-
-    os.chdir("outputs")
+    os.chdir('outputs')
 
     for file in glob.glob("*.xml"):
 
@@ -37,8 +41,10 @@ def main():
 
         os.chdir('..')
 
+
 if __name__ == '__main__':
     main()
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 
 
