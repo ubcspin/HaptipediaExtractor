@@ -20,14 +20,13 @@ def parseSection(XMLroot):
 
     os.chdir('Sections')
 
-    parseAbstract(XMLroot)
-    parseSectionTitles(XMLroot)
+    parse_abstract(XMLroot)
+    parseSectionTitle(XMLroot)
 
     os.chdir('..')
 
 
-
-def parseAbstract(root):
+def parse_abstract(root):
 
     abstract = next(root.iter("{http://www.tei-c.org/ns/1.0}abstract"))
 
@@ -42,9 +41,7 @@ def parseAbstract(root):
             abstractFile.write("No Abstract")
 
 
-
-
-def parseSectionTitles(root):
+def parseSectionTitle(root):
 
     body = next(root.iter("{http://www.tei-c.org/ns/1.0}body"))
 
@@ -56,17 +53,17 @@ def parseSectionTitles(root):
         sectionTitle = sectionTitle.translate(forbidden_chars_table)
 
         if sectionNumber is not None:
-
-            with open(sectionNumber + " " + sectionTitle + ".txt", 'w+', encoding='utf8') as sectionFile:
-                sectionFile.write("Made Section")
+            sectionFile = open(sectionNumber + " " + sectionTitle + ".txt", 'a+', encoding='utf8')
         else:
-            with open(sectionTitle + ".txt", 'w+', encoding='utf8') as sectionFile:
-                sectionFile.write("Made Section")
+            sectionFile = open(sectionTitle + ".txt", 'a+', encoding='utf8')
 
+        for paragraph in div.findall("{http://www.tei-c.org/ns/1.0}p"):
+            text = paragraph.text
+            for ref in paragraph.findall("{http://www.tei-c.org/ns/1.0}ref"):  # extract text after the references
+                if ref.tail is not None:
+                    text = text + ref.tail
+            sectionFile.write(text + "\n")
 
-
-
-
-
+        sectionFile.close()
 
 
