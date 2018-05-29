@@ -24,10 +24,22 @@ def main():
     os.chdir('inputs')
     for file in glob.glob("*.pdf"):
         remove_space(file)
-        # data_extractor(file)
-        # os.chdir('../pdffigures2')
-        # extract_figures('../inputs', '../outputs')
-        # os.chdir('../inputs')
+        folder_name = data_extractor(file)
+
+        if type(folder_name) is bytes:
+            folder_name = folder_name.decode('utf8')
+
+        os.chdir('../pdffigures2')
+
+        input_path = '../inputs/' + file
+        output_path = '../outputs/' + folder_name + '/Figures/'
+        print(input_path)
+        print(output_path)
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+
+        extract_figures(input_path, output_path)
+        os.chdir('../inputs')
 
 
 def data_extractor(file):
@@ -53,8 +65,10 @@ def data_extractor(file):
     XMLfile.write(tei_result)
     XMLfile.close()
     os.chdir("../outputs")
-    parse_XML(XMLfile.name)
+    folder_name = parse_XML(XMLfile.name)
     os.chdir('../inputs')
+
+    return folder_name
 
 
 def extract_figures(input_path, output_path):
@@ -66,10 +80,9 @@ def extract_figures(input_path, output_path):
 
 
 def remove_space(file):
-    print("old name: " + file)
+
     new_name = file.translate(trans_table)
     os.rename(file, new_name)
-    print("new name: " + file)
 
 
 if __name__ == '__main__':
