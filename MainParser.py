@@ -6,45 +6,39 @@ import SectionParser
 import ReferenceParser
 
 # MainParser that can be called from the commandline
-# REQUIRES XML files to be inside a folder called "outputs"
+# REQUIRES XML files to be inside a specific folder
+# must be in the same directory as the XML files or must be called from main and main puts it in the right directory
 
 forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 start_time = time.time()
 
-def main():
+def parse_XML(file):
 
-    os.chdir('outputs')
+    tree = ET.parse(file)
+    root = tree.getroot()
 
-    for file in glob.glob("*.xml"):
+    paper_title = next(root.iter("{http://www.tei-c.org/ns/1.0}title")).text
+    print("pre-translation: " + paper_title)
+    paper_title = paper_title.translate(forbidden_chars_table)
+    print("post-translation: " + paper_title)
 
-        tree = ET.parse(file)
-        root = tree.getroot()
+    if len(paper_title) > 150:
+        paper_title = paper_title[:150]
+        paper_title = paper_title + "_"
 
-        paper_title = next(root.iter("{http://www.tei-c.org/ns/1.0}title")).text
-        print("pre-translation: " + paper_title)
-        paper_title = paper_title.translate(forbidden_chars_table)
-        print("post-translation: " + paper_title)
+    utf8_paper_title = paper_title.encode('ascii', 'ignore')
 
-        if len(paper_title) > 150:
-            paper_title = paper_title[:150]
-            paper_title = paper_title + "_"
+    if not os.path.exists(utf8_paper_title):
+        os.makedirs(utf8_paper_title)
 
-        utf8_paper_title = paper_title.encode('ascii', 'ignore')
+    os.chdir(utf8_paper_title)
 
-        if not os.path.exists(utf8_paper_title):
-            os.makedirs(utf8_paper_title)
+    ReferenceParser.parseReference(root)
+    SectionParser.parseSection(root)
 
-        os.chdir(utf8_paper_title)
-
-        ReferenceParser.parseReference(root)
-        SectionParser.parseSection(root)
-
-        os.chdir('..')
+    os.chdir('..')
 
 
-if __name__ == '__main__':
-    main()
-    print("--- %s seconds ---" % (time.time() - start_time))
 
 
 
