@@ -3,6 +3,7 @@ import glob
 import time
 import requests
 import subprocess
+from ConfigPaths import input_dir, output_dir, pdffigures2_dir
 from MainParser import parse_XML
 
 times_taken = []
@@ -11,28 +12,28 @@ start_time = time.time()
 
 trans_table = str.maketrans(' ', '_')
 
+main_dir = os.getcwd()
+
 '''
 Before Running script:
 1) make sure to have grobid running in the background, see github.com/grobid
-2) PDFFigures2.0 is in the same directory as this script
 '''
 
 def main():
     # go to the director of where the PDF's are located
-    os.chdir('inputs')
+    os.chdir(input_dir)
 
+    # remove spaces from names of PDF's since spaces causes pdffigures2 to skip pdf
     for file in glob.glob("*.pdf"):
         remove_space(file)
 
-    os.chdir('../pdffigures2')
-    input_path = '../inputs'
-    output_path = '../outputs/figures/'
+    os.chdir(pdffigures2_dir)
 
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-    extract_figures(input_path, output_path)
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    extract_figures(input_dir, output_dir)
 
-    os.chdir('../inputs')
+    os.chdir(input_dir)
 
     for file in glob.glob("*.pdf"):
 
@@ -43,37 +44,13 @@ def main():
         pdf_name = file[:-4]
         print(pdf_name)
 
-        os.chdir('../outputs/figures')
+        os.chdir(output_dir)
 
         for pdf in glob.glob(pdf_name + "*"):
-            dest = '../' + file_name + '/Figures/' + pdf
+            dest = file_name + '/Figures/' + pdf
             os.rename(pdf, dest)
 
-        os.chdir('../../inputs')
-
-
-# def main():
-#
-#     # go to the directory of where the PDF's are found (in this case it's inputs)
-#     os.chdir('inputs')
-#     for file in glob.glob("*.pdf"):
-#         remove_space(file)
-#         folder_name = data_extractor(file)
-#
-#         if type(folder_name) is bytes:
-#             folder_name = folder_name.decode('utf8')
-#
-#         os.chdir('../pdffigures2')
-#
-#         input_path = '../inputs/' + file
-#         output_path = '../outputs/' + folder_name + '/Figures/'
-#         print(input_path)
-#         print(output_path)
-#         if not os.path.exists(output_path):
-#             os.makedirs(output_path)
-#
-#         extract_figures(input_path, output_path)
-#         os.chdir('../inputs')
+        os.chdir(input_dir)
 
 
 
@@ -96,7 +73,7 @@ def data_extractor(file):
 
     file_name = os.path.splitext(file)[0]
 
-    XMLfile = open("../outputs/" + file_name + ".xml", 'w+', encoding='utf8')
+    XMLfile = open(output_dir + file_name + ".xml", 'w+', encoding='utf8')
     XMLfile.write(tei_result)
     XMLfile.close()
     os.chdir("../outputs")
