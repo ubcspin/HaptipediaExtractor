@@ -9,7 +9,7 @@ import ReferenceParser
 # REQUIRES XML files to be inside a specific folder
 # must be in the same directory as the XML files or must be called from main and main puts it in the right directory
 
-forbidden_chars_table = str.maketrans('\/*?:"<>| ', '__________')
+forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 start_time = time.time()
 
 def parse_XML(file):
@@ -33,8 +33,9 @@ def parse_XML(file):
 
     os.chdir(utf8_paper_title)
 
-    ReferenceParser.parseReference(root)
-    SectionParser.parseSection(root)
+    ReferenceParser.parseReference(root)    # creates folder for References
+    SectionParser.parseSection(root)        # creates folder for Section Titles and Text
+    os.makedirs('Figures')                  # creates folder for figures
 
     os.chdir('..')
 

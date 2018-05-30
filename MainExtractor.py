@@ -17,29 +17,64 @@ Before Running script:
 2) PDFFigures2.0 is in the same directory as this script
 '''
 
-
 def main():
-
-    # go to the directory of where the PDF's are found (in this case it's inputs)
+    # go to the director of where the PDF's are located
     os.chdir('inputs')
+
     for file in glob.glob("*.pdf"):
         remove_space(file)
-        folder_name = data_extractor(file)
 
-        if type(folder_name) is bytes:
-            folder_name = folder_name.decode('utf8')
+    os.chdir('../pdffigures2')
+    input_path = '../inputs'
+    output_path = '../outputs/figures/'
 
-        os.chdir('../pdffigures2')
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+    extract_figures(input_path, output_path)
 
-        input_path = '../inputs/' + file
-        output_path = '../outputs/' + folder_name + '/Figures/'
-        print(input_path)
-        print(output_path)
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
+    os.chdir('../inputs')
 
-        extract_figures(input_path, output_path)
-        os.chdir('../inputs')
+    for file in glob.glob("*.pdf"):
+
+        file_name = data_extractor(file)
+        if type(file_name) is bytes:
+            file_name = file_name.decode('utf8')
+
+        pdf_name = file[:-4]
+        print(pdf_name)
+
+        os.chdir('../outputs/figures')
+
+        for pdf in glob.glob(pdf_name + "*"):
+            dest = '../' + file_name + '/Figures/' + pdf
+            os.rename(pdf, dest)
+
+        os.chdir('../../inputs')
+
+
+# def main():
+#
+#     # go to the directory of where the PDF's are found (in this case it's inputs)
+#     os.chdir('inputs')
+#     for file in glob.glob("*.pdf"):
+#         remove_space(file)
+#         folder_name = data_extractor(file)
+#
+#         if type(folder_name) is bytes:
+#             folder_name = folder_name.decode('utf8')
+#
+#         os.chdir('../pdffigures2')
+#
+#         input_path = '../inputs/' + file
+#         output_path = '../outputs/' + folder_name + '/Figures/'
+#         print(input_path)
+#         print(output_path)
+#         if not os.path.exists(output_path):
+#             os.makedirs(output_path)
+#
+#         extract_figures(input_path, output_path)
+#         os.chdir('../inputs')
+
 
 
 def data_extractor(file):
