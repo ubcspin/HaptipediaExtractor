@@ -24,17 +24,17 @@ def main():
     # go to the director of where the PDF's are located
     os.chdir(input_dir)
 
-    # remove spaces from names of PDF's since spaces causes pdffigures2 to skip pdf
-    for file in glob.glob("*.pdf"):
-        remove_space(file)
-
-    os.chdir(pdffigures2_dir)
-
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-    extract_figures(input_dir, output_dir)
-
-    os.chdir(input_dir)
+    # # remove spaces from names of PDF's since spaces causes pdffigures2 to skip pdf
+    # for file in glob.glob("*.pdf"):
+    #     remove_space(file)
+    #
+    # os.chdir(pdffigures2_dir)
+    #
+    # if not os.path.exists(output_dir):
+    #     os.makedirs(output_dir)
+    # extract_figures(input_dir, output_dir)
+    #
+    # os.chdir(input_dir)
 
     for file in glob.glob("*.pdf"):
 
@@ -60,7 +60,9 @@ def organize_images(pdf_name, folder_name):
 
     pdf_length = len(pdf_name) + 1 # to take into account the dash at the end and 0-index
 
-    for pdf in glob.glob(pdf_name + "*" + ".png"):
+    pdfs = glob.glob(pdf_name + '-Figure' + "*" +".png") + glob.glob(pdf_name + '-Table' + "*" +".png")
+
+    for pdf in pdfs:
         new_name = pdf[pdf_length:]
         dest = folder_name + '/Figures/' + new_name
         os.rename(pdf, dest)
