@@ -5,6 +5,6 @@ Make sure to add a '\' at the end of output_dir so that the files go inside the 
 
 'Example:'
 
-input_dir = r'C:\Users\john_\OneDrive\Documents\HaptipediaData\inputs'
-output_dir = r'C:\Users\john_\OneDrive\Documents\HaptipediaData\outputs/'
+input_dir = r'C:\Users\john_\Desktop\TestPDF\inputs'
+output_dir = r'C:\Users\john_\Desktop\TestPDF\outputs\\'
 pdffigures2_dir = r'C:\Users\john_\Desktop\Projects\Haptipedia\pdffigures2'

@@ -1,6 +1,6 @@
 import os
-import glob
 import xml.etree.ElementTree as ET
+import json
 import time
 import SectionParser
 import ReferenceParser
@@ -12,15 +12,19 @@ import ReferenceParser
 forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 start_time = time.time()
 
-def parse_XML(file):
 
-    tree = ET.parse(file)
+def parse_files(XMLfile_path, JSONfile_path):
+
+    tree = ET.parse(XMLfile_path)
     root = tree.getroot()
 
     paper_title = next(root.iter("{http://www.tei-c.org/ns/1.0}title")).text
-    print("pre-translation: " + paper_title)
-    paper_title = paper_title.translate(forbidden_chars_table)
-    print("post-translation: " + paper_title)
+    if paper_title is not None:
+        print("pre-translation: " + paper_title)
+        paper_title = paper_title.translate(forbidden_chars_table)
+        print("post-translation: " + paper_title)
+    else:
+        paper_title = XMLfile_path[:-4]
 
     if len(paper_title) > 150:
         paper_title = paper_title[:150]
@@ -35,11 +39,37 @@ def parse_XML(file):
 
     ReferenceParser.parseReference(root)    # creates folder for References
     SectionParser.parseSection(root)        # creates folder for Section Titles and Text
-    os.makedirs('Figures')                  # creates folder for figures
-
-    os.chdir('..')
+    if not os.path.exists('Figures'):
+        os.makedirs('Figures')                  # creates folder for figures
+    os.chdir('Figures')
+    parse_JSON(JSONfile_path)
+    os.chdir('../..')
 
     return utf8_paper_title
+
+
+
+def parse_JSON(file):
+
+    with open(file, 'r') as json_file:
+        data = json.load(json_file)
+
+        for x in range(len(data)):
+            caption = data[x]["caption"]
+            figType = data[x]["figType"]
+            number = data[x]['name']
+
+            figure_number = number
+
+            if figType == 'Figure':
+                figure_number = "Figure " + number
+            elif figType == 'Table':
+                figure_number = 'Table ' + number
+
+            with open(figure_number + " Caption.txt", 'w') as caption_text:
+                caption_text.write(caption)
+
+
 
 
 

@@ -4,7 +4,7 @@ import time
 import requests
 import subprocess
 from ConfigPaths import input_dir, output_dir, pdffigures2_dir
-from MainParser import parse_XML
+from MainParser import parse_files
 
 times_taken = []
 total_time = 0
@@ -20,6 +20,7 @@ Before Running script:
 '''
 
 def main():
+
     # go to the director of where the PDF's are located
     os.chdir(input_dir)
 
@@ -37,21 +38,32 @@ def main():
 
     for file in glob.glob("*.pdf"):
 
-        file_name = data_extractor(file)
-        if type(file_name) is bytes:
-            file_name = file_name.decode('utf8')
+        folder_name = data_extractor(file)
 
-        pdf_name = file[:-4]
-        print(pdf_name)
+        if folder_name is not None:
 
-        os.chdir(output_dir)
+            if type(folder_name) is bytes:
+                folder_name = folder_name.decode('utf8')
 
-        for pdf in glob.glob(pdf_name + "*"):
-            dest = file_name + '/Figures/' + pdf
-            os.rename(pdf, dest)
+            folder_name = folder_name.strip()     # remove any trailing spaces
+
+            pdf_name = file[:-4]
+            print(pdf_name)
+
+            os.chdir(output_dir)
+            organize_images(pdf_name, folder_name)
 
         os.chdir(input_dir)
 
+
+def organize_images(pdf_name, folder_name):
+
+    pdf_length = len(pdf_name) + 1 # to take into account the dash at the end and 0-index
+
+    for pdf in glob.glob(pdf_name + "*" + ".png"):
+        new_name = pdf[pdf_length:]
+        dest = folder_name + '/Figures/' + new_name
+        os.rename(pdf, dest)
 
 
 def data_extractor(file):
@@ -66,26 +78,29 @@ def data_extractor(file):
 
     print("Status code for " + file + " = " + str(r.status_code))
 
-    tei_result = r.text
+    if r.status_code == 200:
 
-    if tei_result is bytes:
-        tei_result.decode('utf8')
+        tei_result = r.text
 
-    file_name = os.path.splitext(file)[0]
+        if tei_result is bytes:
+            tei_result.decode('utf8')
 
-    XMLfile = open(output_dir + file_name + ".xml", 'w+', encoding='utf8')
-    XMLfile.write(tei_result)
-    XMLfile.close()
-    os.chdir("../outputs")
-    folder_name = parse_XML(XMLfile.name)
-    os.chdir('../inputs')
+        file_name = os.path.splitext(file)[0]
 
-    return folder_name
+        XMLfile = open(output_dir + file_name + ".xml", 'w+', encoding='utf8')
+        JSONfile = output_dir + file_name + ".json"
+        XMLfile.write(tei_result)
+        XMLfile.close()
+        os.chdir(output_dir)
+        folder_name = parse_files(XMLfile.name, JSONfile)
+        os.chdir(input_dir)
+
+        return folder_name
 
 
 def extract_figures(input_path, output_path):
 
-    command = ' '.join(['run-main', 'org.allenai.pdffigures2.FigureExtractorBatchCli', input_path, '-m', output_path])
+    command = ' '.join(['run-main', 'org.allenai.pdffigures2.FigureExtractorBatchCli', input_path, '-m', output_path, '-d', output_path])
     sbt_command = ' '.join(['sbt', '"' + command + '"'])
     print(sbt_command)
     subprocess.Popen(sbt_command, shell=True, universal_newlines=True).communicate()
