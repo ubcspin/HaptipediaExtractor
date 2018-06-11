@@ -1,4 +1,5 @@
 import os
+import CrossReference
 import glob
 import xml.etree.ElementTree as ET
 
@@ -13,7 +14,7 @@ import xml.etree.ElementTree as ET
 # Output info is temporarily placed in txt file, later will be added to a database
 
 
-def parseReference(XMLroot):
+def parseReference(XMLroot, device_name, session):
 
     if not os.path.exists('References'):
         os.makedirs('References')
@@ -36,6 +37,8 @@ def parseReference(XMLroot):
                 title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
 
                 if title is not None:
+                    CrossReference.add_new_Ref(device_name, title, session)
+
                     count += 1
 
                     filename = "[" + str(count) + "].txt"
@@ -45,7 +48,8 @@ def parseReference(XMLroot):
                         writeAuthorsToFile(refFile, ref)
                         writePublishersToFile(title, refFile, biblStruct)
 
-            except:
+            except Exception as e:
+                print(e)
                 pass
 
     os.chdir('..')
@@ -83,8 +87,6 @@ def writePublishersToFile(title, refFile, biblStruct):
             refFile.write("\nVolume: " + val)
         elif unit == 'issue':
             refFile.write("\nIssue" + val)
-
-
 
 
 

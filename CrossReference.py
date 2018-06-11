@@ -1,99 +1,83 @@
-from sqlalchemy import Column, String, create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, String, create_engine, ForeignKey, exc
+from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-import xml.etree.ElementTree as ET
+
 
 Base = declarative_base()
 
 # Device class to represent a single data extracted from a PDF
 class Device:
 
-    def __init__(self, filename):
-
-        title, self.back_ref = initialize_backref(filename)
-        title = make_consistent(title)
+    def __init__(self, title):
         self.title = title
-        self.fore_ref = initialize_foreref(title)
+        self.backref = []
+        self.foreref = []
 
 
+# ref table for the papers a paper has referenced
 class RefTable(Base):
-    __tablename__ = 'Reference Table'
-    device = Column("Paper Name", String, primary_key=True, unique=False)
+    # all names are modified title of themselves
+    __tablename__ = 'ReferenceTable'
+    device = Column("Paper Name", String, primary_key=True, unique=False) # add foreign key later
     reference = Column("Reference Name", String, primary_key=True, unique=False)
 
 
-def initialize_backref(filename):
+class PaperTable(Base):
+    __tablename__ = 'PaperTable'
+    modified_name = Column(String, primary_key=True, unique=True)
+    original_name = Column("Original Name", String)
 
-    tree = ET.parse(filename)
-    root = tree.getroot()
-    back_refs = []
 
-    paper_title = next(root.iter("{http://www.tei-c.org/ns/1.0}title")).text
-    for biblStruct in root.iter("{http://www.tei-c.org/ns/1.0}biblStruct"):
+# author table to access who wrote the paper, will have two attributes (one for paper name, one for the author
+# both will be the primary keys for the table
+# TODO: implement this after checking when PaperTable works
+# class AuthorTable(Base):
 
-        if len(biblStruct.attrib.keys()) != 0:  # used to separate paper title from reference titles
 
-            ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}analytic")
+def init_Device(paper_name, session):
+    # this assumes that a session has already been created
+    new_device = Device(paper_name)
+    modified_name = modify_name(paper_name)
+    new_paper = PaperTable(modified_name = modified_name, original_name = paper_name)
+    session.add(new_paper)
+    session.commit()
 
-            if ref is None:
-                # title is an analytic element, if not, then its a monogr element
-                ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
+    return new_device, modified_name
 
-            try:
-                title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
-                title = make_consistent(title)
-                # print("New Title: " + title)
-                back_refs.append(title)
 
-            except:
-                pass
+def add_new_Ref(device_name, title, session):
 
-    return paper_title, back_refs
+    title = modify_name(title)
+    new_ref = RefTable(device=device_name, reference=title)
+    session.add(new_ref)
+    try:
+        session.commit()
+    except exc.IntegrityError:
+        print("Skipping Duplicate")
+        session.rollback()
+        pass
 
-def initialize_foreref(title):
-    fore_ref = []
-    for device, in session.query(RefTable.device).filter_by(reference=title):
-        fore_ref.append(device)
+# def initialize_foreref(title):
+#     fore_ref = []
+#     for device, in session.query(RefTable.device).filter_by(reference=title):
+#         fore_ref.append(device)
+#
+#     return fore_ref
 
-    return fore_ref
-
-def make_consistent(title):
+def modify_name(title):
+    if type(title) is not str:
+        title = title.decode("ascii")
     allowed_char = set('abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
     title = ''.join(filter(allowed_char.__contains__, title))
     title = title.lower()
     return title
 
 
-test_engine = create_engine('sqlite:///test_database.db', echo=True)
-Base.metadata.create_all(test_engine)
-Base.metadata.bind = test_engine
+def create_session():
+    engine = create_engine("sqlite:///test_database.db", echo=True)
+    Base.metadata.create_all(engine)
+    Base.metadata.bind = engine
 
-test_session = sessionmaker(bind=test_engine)
+    test_session = sessionmaker(bind=engine)
 
-session = test_session()
-
-test_device = Device("Vishard10.xml")
-for ref in test_device.back_ref:
-    new_ref = RefTable(device=test_device.title, reference=ref, ref_type="Back-Ref")
-    session.add(new_ref)
-
-for fore_ref in test_device.fore_ref:
-    new_ref = RefTable(device=test_device.title, reference=ref, ref_type="Fore-Ref")
-    session.add(new_ref)
-
-print(str(len(test_device.fore_ref)))
-
-test_device = Device("phantom.xml")
-for ref in test_device.back_ref:
-    new_ref = RefTable(device=test_device.title, reference=ref, ref_type="Back-Ref")
-    session.add(new_ref)
-
-for fore_ref in test_device.fore_ref:
-    new_ref = RefTable(device=test_device.title, reference=ref, ref_type="Fore-Ref")
-    session.add(new_ref)
-
-print(str(len(test_device.fore_ref)))
-
-session.commit()
-
-session.close()
+    return test_session()

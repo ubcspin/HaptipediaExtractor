@@ -1,19 +1,21 @@
 import os
 import xml.etree.ElementTree as ET
 import json
-import time
 import SectionParser
 import ReferenceParser
+from CrossReference import init_Device
+#import AuthorParser
+#import PublicationParser
+
 
 # MainParser that can be called from the commandline
 # REQUIRES XML files to be inside a specific folder
 # must be in the same directory as the XML files or must be called from main and main puts it in the right directory
 
 forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
-start_time = time.time()
 
 
-def parse_files(XMLfile_path, JSONfile_path):
+def parse_files(XMLfile_path, JSONfile_path, session):
 
     tree = ET.parse(XMLfile_path)
     root = tree.getroot()
@@ -31,13 +33,17 @@ def parse_files(XMLfile_path, JSONfile_path):
         paper_title = paper_title + "_"
 
     utf8_paper_title = paper_title.encode('ascii', 'ignore')
+    device, device_name = init_Device(utf8_paper_title, session)
 
     if not os.path.exists(utf8_paper_title):
         os.makedirs(utf8_paper_title)
 
     os.chdir(utf8_paper_title)
 
-    ReferenceParser.parseReference(root)    # creates folder for References
+    # TODO: implement once we have tables working
+    #AuthorParser.parseAuthor(root)
+    #PublicationParser.parsePub(root)
+    ReferenceParser.parseReference(root, device_name, session)    # creates folder for References
     SectionParser.parseSection(root)        # creates folder for Section Titles and Text
     if not os.path.exists('Figures'):
         os.makedirs('Figures')                  # creates folder for figures

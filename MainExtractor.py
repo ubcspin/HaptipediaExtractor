@@ -3,6 +3,7 @@ import glob
 import time
 import requests
 import subprocess
+import CrossReference
 from ConfigPaths import input_dir, output_dir, pdffigures2_dir
 from MainParser import parse_files
 
@@ -32,13 +33,24 @@ def main():
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+
+    start = time.time()
     extract_figures(input_dir, output_dir)
+    finish = time.time()
+
+    print("Extracted Figures in " + str(finish - start) + "seconds")
 
     os.chdir(input_dir)
 
+    start = time.time()
     data_extractor()
+    finish = time.time()
+
+    print("Extracted Data in " + str(finish - start) + " seconds")
 
     os.chdir(output_dir)
+
+    session = CrossReference.create_session()
 
     for file in glob.glob('*.xml'):
         XMLfile_path = file
@@ -46,7 +58,7 @@ def main():
         JSONfile_path = output_dir + pdf_name + '.json'
         print("XML: " + XMLfile_path)
         print("JSON: " + JSONfile_path)
-        folder_name = parse_files(XMLfile_path, JSONfile_path)
+        folder_name = parse_files(XMLfile_path, JSONfile_path, session)
 
         if folder_name is not None:
             if type(folder_name) is bytes:
@@ -103,6 +115,7 @@ def extract_figures(input_path, output_path):
     sbt_command = ' '.join(['sbt', '"' + command + '"'])
     print(sbt_command)
     subprocess.Popen(sbt_command, shell=True, universal_newlines=True).communicate()
+
 
 
 def remove_space(file):
