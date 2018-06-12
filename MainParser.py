@@ -54,7 +54,6 @@ def parse_files(XMLfile_path, JSONfile_path, session):
     return utf8_paper_title
 
 
-
 def parse_JSON(file):
 
     with open(file, 'r') as json_file:

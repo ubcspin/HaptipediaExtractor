@@ -1,11 +1,11 @@
 import os
-import CrossReference
+from CrossReference import add_new_ref
 import glob
 import xml.etree.ElementTree as ET
 
 # Parser to extract References from an XML file
 # References include:
-# 1.) Reference Title
+# 1.) Reference
 # 2.) Reference Authors
 # 3.) Conference/Journal Published
 # 4.) Year it was published
@@ -37,7 +37,8 @@ def parseReference(XMLroot, device_name, session):
                 title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
 
                 if title is not None:
-                    CrossReference.add_new_Ref(device_name, title, session)
+                    add_new_ref(device_name, title, session)
+
 
                     count += 1
 
