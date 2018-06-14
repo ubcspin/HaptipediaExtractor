@@ -3,6 +3,7 @@ import glob
 import time
 import requests
 import subprocess
+from CrossReference import build_geneology
 from ConfigPaths import input_dir, output_dir, pdffigures2_dir
 from MainParser import parse_files
 
@@ -32,11 +33,20 @@ def main():
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+
+    start = time.time()
     extract_figures(input_dir, output_dir)
+    finish = time.time()
+
+    print("Extracted Figures in " + str(finish - start) + "seconds")
 
     os.chdir(input_dir)
 
+    start = time.time()
     data_extractor()
+    finish = time.time()
+
+    print("Extracted Data in " + str(finish - start) + " seconds")
 
     os.chdir(output_dir)
 
@@ -54,6 +64,8 @@ def main():
 
             folder_name = folder_name.strip()     # remove any trailing spaces
             organize_images(pdf_name, folder_name)
+
+    build_geneology()
 
 
 def organize_images(pdf_name, folder_name):
@@ -103,6 +115,7 @@ def extract_figures(input_path, output_path):
     sbt_command = ' '.join(['sbt', '"' + command + '"'])
     print(sbt_command)
     subprocess.Popen(sbt_command, shell=True, universal_newlines=True).communicate()
+
 
 
 def remove_space(file):
