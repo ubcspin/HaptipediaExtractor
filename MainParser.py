@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 import json
 import SectionParser
 import ReferenceParser
-from CrossReference import init_Device
+from CrossReference import init_device
 #import AuthorParser
 #import PublicationParser
 
@@ -15,7 +15,7 @@ from CrossReference import init_Device
 forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 
 
-def parse_files(XMLfile_path, JSONfile_path, session):
+def parse_files(XMLfile_path, JSONfile_path):
 
     tree = ET.parse(XMLfile_path)
     root = tree.getroot()
@@ -33,7 +33,7 @@ def parse_files(XMLfile_path, JSONfile_path, session):
         paper_title = paper_title + "_"
 
     utf8_paper_title = paper_title.encode('ascii', 'ignore')
-    device, device_name = init_Device(utf8_paper_title, session)
+    device, device_name = init_device(utf8_paper_title)
 
     if not os.path.exists(utf8_paper_title):
         os.makedirs(utf8_paper_title)
@@ -43,7 +43,7 @@ def parse_files(XMLfile_path, JSONfile_path, session):
     # TODO: implement once we have tables working
     #AuthorParser.parseAuthor(root)
     #PublicationParser.parsePub(root)
-    ReferenceParser.parseReference(root, device_name, session)    # creates folder for References
+    ReferenceParser.parseReference(root, device)    # creates folder for References
     SectionParser.parseSection(root)        # creates folder for Section Titles and Text
     if not os.path.exists('Figures'):
         os.makedirs('Figures')                  # creates folder for figures

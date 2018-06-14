@@ -3,7 +3,7 @@ import glob
 import time
 import requests
 import subprocess
-import CrossReference
+from CrossReference import build_geneology
 from ConfigPaths import input_dir, output_dir, pdffigures2_dir
 from MainParser import parse_files
 
@@ -50,15 +50,13 @@ def main():
 
     os.chdir(output_dir)
 
-    session = CrossReference.create_session()
-
     for file in glob.glob('*.xml'):
         XMLfile_path = file
         pdf_name = XMLfile_path[:-4]
         JSONfile_path = output_dir + pdf_name + '.json'
         print("XML: " + XMLfile_path)
         print("JSON: " + JSONfile_path)
-        folder_name = parse_files(XMLfile_path, JSONfile_path, session)
+        folder_name = parse_files(XMLfile_path, JSONfile_path)
 
         if folder_name is not None:
             if type(folder_name) is bytes:
@@ -66,6 +64,8 @@ def main():
 
             folder_name = folder_name.strip()     # remove any trailing spaces
             organize_images(pdf_name, folder_name)
+
+    build_geneology()
 
 
 def organize_images(pdf_name, folder_name):

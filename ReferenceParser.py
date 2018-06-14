@@ -1,6 +1,5 @@
 import os
-from CrossReference import add_new_ref
-import glob
+from CrossReference import add_backward_ref, add_forward_ref
 import xml.etree.ElementTree as ET
 
 # Parser to extract References from an XML file
@@ -14,7 +13,7 @@ import xml.etree.ElementTree as ET
 # Output info is temporarily placed in txt file, later will be added to a database
 
 
-def parseReference(XMLroot, device_name, session):
+def parseReference(XMLroot, device):
 
     if not os.path.exists('References'):
         os.makedirs('References')
@@ -37,8 +36,8 @@ def parseReference(XMLroot, device_name, session):
                 title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
 
                 if title is not None:
-                    add_new_ref(device_name, title, session)
-
+                    add_backward_ref(device, title)
+                    # add_forward_ref(device, device.name, True, title)
 
                     count += 1
 
@@ -50,8 +49,10 @@ def parseReference(XMLroot, device_name, session):
                         writePublishersToFile(title, refFile, biblStruct)
 
             except Exception as e:
-                print(e)
                 pass
+
+    for backref in device.forward_ref:
+        print(backref)
 
     os.chdir('..')
 
