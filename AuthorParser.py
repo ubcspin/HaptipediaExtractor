@@ -1,26 +1,30 @@
-import os
-import xml.etree.ElementTree as ET
-
 def parseAuthor(root, device):
 
-    sourceDesc = root.find("{http://www.tei-c.org/ns/1.0}sourceDesc")
+    sourceDesc = next(root.iter("{http://www.tei-c.org/ns/1.0}sourceDesc"))
 
     if sourceDesc is not None:
         for author in sourceDesc.iter("{http://www.tei-c.org/ns/1.0}author"):
             persName = author.find("{http://www.tei-c.org/ns/1.0}persName")
-            firstName = persName.find("{http://www.tei-c.org/ns/1.0}forename")
-            surname = persName.find("{http://www.tei-c.org/ns/1.0}surname")
+            if persName is not None:
+                firstName = persName.find("{http://www.tei-c.org/ns/1.0}forename")
+                surname = persName.find("{http://www.tei-c.org/ns/1.0}surname")
 
-            if firstName is None:
-                firstName = ''
+                if firstName is not None and surname is not None:
+                    if len(firstName.text) == 1:
+                        name = firstName.text + ". " + surname.text
+                    else:
+                        name = firstName.text + " " + surname.text
 
-            if surname is None:
-                surname = ''
+                else:
+                    if surname is not None:
+                        name = surname.text
 
-            name = firstName + surname
+                    else:
+                        name = ''
 
-            if name is not '':
-                device.authors.append(name)
+                if name is not '':
+                    device.authors.append(name)
+
 
 
 

@@ -3,9 +3,10 @@ import glob
 import time
 import requests
 import subprocess
-from CrossReference import build_geneology
-from ConfigPaths import input_dir, output_dir, pdffigures2_dir
+from CrossReference import build_geneology, devices
+from ConfigPaths import input_dir, output_dir, pdffigures2_dir, writeToFile
 from MainParser import parse_files
+from TextWriter import writeFiles
 
 times_taken = []
 total_time = 0
@@ -50,6 +51,7 @@ def main():
 
     os.chdir(output_dir)
 
+    start = time.time()
     for file in glob.glob('*.xml'):
         XMLfile_path = file
         pdf_name = XMLfile_path[:-4]
@@ -66,6 +68,21 @@ def main():
             organize_images(pdf_name, folder_name)
 
     build_geneology()
+    if writeToFile:
+        writeFiles(devices)
+    finish = time.time()
+
+    print("Parsed Files in " + str(finish - start) + " seconds")
+
+    os.chdir(output_dir)
+    clean_output_folder()
+
+
+def clean_output_folder():
+    os.makedirs('Raw Files')
+    for file in (glob.glob('*.xml') + glob.glob('*.json')):
+        dest = 'Raw Files/' + file
+        os.rename(file, dest)
 
 
 def organize_images(pdf_name, folder_name):

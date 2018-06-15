@@ -13,35 +13,25 @@ import xml.etree.ElementTree as ET
 forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 
 
-def parseSection(XMLroot):
+def parseSection(XMLroot, device):
 
-    if not os.path.exists('Sections'):
-        os.makedirs('Sections')
+    parse_abstract(XMLroot, device)
+    parseSectionTitle(XMLroot, device)
 
-    os.chdir('Sections')
-
-    parse_abstract(XMLroot)
-    parseSectionTitle(XMLroot)
-
-    os.chdir('..')
-
-
-def parse_abstract(root):
+def parse_abstract(root, device):
 
     abstract = next(root.iter("{http://www.tei-c.org/ns/1.0}abstract"))
 
     try:
         abstract = abstract.find("{http://www.tei-c.org/ns/1.0}p").text
 
-        with open('Abstract.txt', 'w+', encoding='utf8') as abstractFile:
-            abstractFile.write(abstract)
-
     except:
-        with open('Abstract.txt', 'w+', encoding='utf8') as abstractFile:
-            abstractFile.write("No Abstract")
+        abstract = "No Abstract Extracted"
+
+    device.sections['Abstract'] = abstract
 
 
-def parseSectionTitle(root):
+def parseSectionTitle(root, device):
 
     body = next(root.iter("{http://www.tei-c.org/ns/1.0}body"))
 
@@ -53,17 +43,22 @@ def parseSectionTitle(root):
         sectionTitle = sectionTitle.translate(forbidden_chars_table)
 
         if sectionNumber is not None:
-            sectionFile = open(sectionNumber + " " + sectionTitle + ".txt", 'a+', encoding='utf8')
+            section_file = sectionNumber + ' ' + sectionTitle
+            # sectionFile = open(sectionNumber + " " + sectionTitle + ".txt", 'a+', encoding='utf8')
         else:
-            sectionFile = open(sectionTitle + ".txt", 'a+', encoding='utf8')
+            section_file = sectionTitle
+            # sectionFile = open(sectionTitle + ".txt", 'a+', encoding='utf8')
+
+        paragraphs = []
 
         for paragraph in div.findall("{http://www.tei-c.org/ns/1.0}p"):
             text = paragraph.text
             for ref in paragraph.findall("{http://www.tei-c.org/ns/1.0}ref"):  # extract text after the references
                 if ref.tail is not None:
                     text = text + ref.tail
-            sectionFile.write(text + "\n")
 
-        sectionFile.close()
+            paragraphs.append(text)
+
+        device.sections[section_file] = paragraphs
 
 

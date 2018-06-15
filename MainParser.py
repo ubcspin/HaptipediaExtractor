@@ -3,9 +3,9 @@ import xml.etree.ElementTree as ET
 import json
 import SectionParser
 import ReferenceParser
+import AuthorParser
+import PublicationParser
 from CrossReference import init_device
-#import AuthorParser
-#import PublicationParser
 
 
 # MainParser that can be called from the commandline
@@ -32,29 +32,31 @@ def parse_files(XMLfile_path, JSONfile_path):
         paper_title = paper_title[:150]
         paper_title = paper_title + "_"
 
-    utf8_paper_title = paper_title.encode('ascii', 'ignore')
-    device, device_name = init_device(utf8_paper_title)
 
-    if not os.path.exists(utf8_paper_title):
-        os.makedirs(utf8_paper_title)
+    if type(paper_title) is not str:
+        paper_title = str(paper_title, 'utf8')
 
-    os.chdir(utf8_paper_title)
+    device = init_device(paper_title)
 
-    # TODO: implement once we have tables working
-    #AuthorParser.parseAuthor(root)
-    #PublicationParser.parsePub(root)
-    ReferenceParser.parseReference(root, device)    # creates folder for References
-    SectionParser.parseSection(root)        # creates folder for Section Titles and Text
+
+    AuthorParser.parseAuthor(root, device)
+    PublicationParser.parsePub(root, device)
+    ReferenceParser.parseReference(root, device)
+    SectionParser.parseSection(root, device)
+    parse_JSON(JSONfile_path, device)
+
+    if not os.path.exists(paper_title):
+        os.makedirs(paper_title)
+
+    os.chdir(paper_title)
     if not os.path.exists('Figures'):
-        os.makedirs('Figures')                  # creates folder for figures
-    os.chdir('Figures')
-    parse_JSON(JSONfile_path)
-    os.chdir('../..')
+        os.makedirs('Figures')
+    os.chdir('..')
 
-    return utf8_paper_title
+    return paper_title
 
 
-def parse_JSON(file):
+def parse_JSON(file, device):
 
     with open(file, 'r') as json_file:
         data = json.load(json_file)
@@ -71,9 +73,7 @@ def parse_JSON(file):
             elif figType == 'Table':
                 figure_number = 'Table ' + number
 
-            with open(figure_number + " Caption.txt", 'w') as caption_text:
-                caption_text.write(caption)
-
+            device.figures[figure_number] = caption
 
 
 

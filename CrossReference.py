@@ -1,65 +1,3 @@
-<<<<<<< HEAD
-from sqlalchemy import Column, String, create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-import xml.etree.ElementTree as ET
-
-Base = declarative_base()
-
-# Device class to represent a single data extracted from a PDF
-class Device:
-
-    def __init__(self, filename):
-
-        title, self.back_ref = initialize_backref(filename)
-        title = make_consistent(title)
-        self.title = title
-        self.fore_ref = initialize_foreref(title)
-
-
-class RefTable(Base):
-    __tablename__ = 'Reference Table'
-    device = Column("Paper Name", String, primary_key=True, unique=False)
-    reference = Column("Reference Name", String, primary_key=True, unique=False)
-
-
-def initialize_backref(filename):
-
-    tree = ET.parse(filename)
-    root = tree.getroot()
-    back_refs = []
-
-    paper_title = next(root.iter("{http://www.tei-c.org/ns/1.0}title")).text
-    for biblStruct in root.iter("{http://www.tei-c.org/ns/1.0}biblStruct"):
-
-        if len(biblStruct.attrib.keys()) != 0:  # used to separate paper title from reference titles
-
-            ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}analytic")
-
-            if ref is None:
-                # title is an analytic element, if not, then its a monogr element
-                ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
-
-            try:
-                title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
-                title = make_consistent(title)
-                # print("New Title: " + title)
-                back_refs.append(title)
-
-            except:
-                pass
-
-    return paper_title, back_refs
-
-def initialize_foreref(title):
-    fore_ref = []
-    for device, in session.query(RefTable.device).filter_by(reference=title):
-        fore_ref.append(device)
-
-    return fore_ref
-
-def make_consistent(title):
-=======
 import json
 # Dictionary where the modified name of the device is the key, and the device object is the value
 devices = {}
@@ -73,10 +11,14 @@ data = {}
 class Device:
 
     def __init__(self, name):
-        self.name = name
+        self.name = name #also the name of the folder it's in
         self.backward_ref = []
         self.forward_ref = []
-        self.authors = []  # filled when we create the author parser
+        self.authors = []
+        self.publisher = ''
+        self.sections = {}
+        self.figures = {}
+        self.citations = []
 
 
 def init_device(name):
@@ -86,32 +28,7 @@ def init_device(name):
     # add_forward_ref(new_device, modified_name, False, None)
     devices[modified_name] = new_device
 
-    return new_device, modified_name
-
-# Parameters:
-# this_device: device
-# name
-# isInitialized: if true, check if the ref of this_device is in devices, update the forwardRef
-#                if false, check if this_device has been referenced before (ref will be None)
-# ref: reference to check is it exists
-
-
-def add_forward_ref(this_device, name, isInitialized, ref):
-    if isInitialized:
-        ref = modify_name(ref)
-        if ref in devices:
-            device = devices[ref]
-            device.forward_ref.append(modify_name(name))
-
-    else:
-        # n^2, see if a different implementation can change this
-        for device in devices:
-            for back_ref in devices[device].backward_ref:
-                if back_ref == name:
-                    cited_by = modify_name(devices[device].name)
-                    this_device.forward_ref.append(cited_by)
-                    print("Added Forward Ref: " + str(this_device.name) + "was referred by " + cited_by)
-
+    return new_device
 
 # Parameters:
 # device: device where backwardRef should be added
@@ -125,47 +42,11 @@ def add_backward_ref(device, ref_name):
 def modify_name(title):
     if type(title) is not str:
         title = title.decode("ascii")
->>>>>>> dbc84afa0b14c321ef0477e03ac5762aea51bbfa
     allowed_char = set('abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
     title = ''.join(filter(allowed_char.__contains__, title))
     title = title.lower()
     return title
 
-<<<<<<< HEAD
-test_engine = create_engine('sqlite:///test_database.db', echo=True)
-Base.metadata.create_all(test_engine)
-Base.metadata.bind = test_engine
-
-test_session = sessionmaker(bind=test_engine)
-
-session = test_session()
-
-test_device = Device("Vishard10.xml")
-for ref in test_device.back_ref:
-    new_ref = RefTable(device=test_device.title, reference=ref, ref_type="Back-Ref")
-    session.add(new_ref)
-
-for fore_ref in test_device.fore_ref:
-    new_ref = RefTable(device=test_device.title, reference=ref, ref_type="Fore-Ref")
-    session.add(new_ref)
-
-print(str(len(test_device.fore_ref)))
-
-test_device = Device("phantom.xml")
-for ref in test_device.back_ref:
-    new_ref = RefTable(device=test_device.title, reference=ref, ref_type="Back-Ref")
-    session.add(new_ref)
-
-for fore_ref in test_device.fore_ref:
-    new_ref = RefTable(device=test_device.title, reference=ref, ref_type="Fore-Ref")
-    session.add(new_ref)
-
-print(str(len(test_device.fore_ref)))
-
-session.commit()
-
-session.close()
-=======
 
 def build_geneology():
     # dict where the device name is the key and the list of other devices is the value
@@ -238,29 +119,3 @@ def find(name, data):
             new_child = dict
             data.remove(dict)
             return new_child
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> dbc84afa0b14c321ef0477e03ac5762aea51bbfa
