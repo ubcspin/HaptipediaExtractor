@@ -79,9 +79,9 @@ def main():
 
 
 def clean_output_folder():
-    os.makedirs('Raw Files')
+    os.makedirs('JSON and  XML Files')
     for file in (glob.glob('*.xml') + glob.glob('*.json')):
-        dest = 'Raw Files/' + file
+        dest = 'JSON and XML Files/' + file
         os.rename(file, dest)
 
 

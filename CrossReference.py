@@ -57,7 +57,7 @@ def build_geneology():
         if len(device.forward_ref) != 0:
              edges[modify_name(device.name)] = device.forward_ref
 
-    build_data(edges)
+    build_JSON(edges)
 
 
 def initialize_forward_ref():
@@ -66,18 +66,19 @@ def initialize_forward_ref():
             if ref in devices:
                 devices[ref].forward_ref.append(device)
 
-def build_data(edges):
+
+def build_JSON(edges):
     data['root'] = []
     for edge in edges:
-        visited.append(edge)
-        children = []
-        children = create_children(edge)
+        if edge not in visited:
+            visited.append(edge)
+            children = create_children(edge)
 
-        new_dict = {
-            'name': edge,
-            'children': children
-        }
-        data['root'].append(new_dict)
+            new_dict = {
+                'name': edge,
+                'children': children
+            }
+            data['root'].append(new_dict)
 
     with open("Geneology.json", 'w+') as geneology:
         json.dump(data, geneology)
@@ -92,10 +93,10 @@ def create_children(name):
                 children.append(new_child)
 
             else:
-                visited.append(visited)
+                visited.append(child)
                 new_child = {
-                    'name' : child,
-                    'children' : create_children(name)
+                    'name': child,
+                    'children': create_children(child)
 
                 }
                 children.append(new_child)

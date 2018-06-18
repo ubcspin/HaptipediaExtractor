@@ -127,9 +127,8 @@ def writePublishersToFile(title, biblStruct, ref_object):
             print(e)
             pass
 
-def writeAuthorsToFile(ref, ref_object):
 
-    # refFile.write("\nAuthors:")
+def writeAuthorsToFile(ref, ref_object):
 
     for author in ref.iter("{http://www.tei-c.org/ns/1.0}author"):
         persName = author.find("{http://www.tei-c.org/ns/1.0}persName")
@@ -139,7 +138,7 @@ def writeAuthorsToFile(ref, ref_object):
             surname = persName.find("{http://www.tei-c.org/ns/1.0}surname")
 
             if forename is not None and surname is not None:
-                if len(forename.text) != 1:
+                if len(forename.text) == 1:
                     name = forename.text + '. ' + surname.text
                 else:
                     name = forename.text = surname.text
