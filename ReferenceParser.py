@@ -1,5 +1,5 @@
 import os
-from CrossReference import add_backward_ref
+from Device import add_backward_ref
 import xml.etree.ElementTree as ET
 
 # Parser to extract References from an XML file
@@ -12,12 +12,15 @@ import xml.etree.ElementTree as ET
 # XML files must be in the same place as this python file
 # Output info is temporarily placed in txt file, later will be added to a database
 
+
 class Reference:
     def __init__(self, title, refNumber):
         self.refNumber = refNumber
         self.title = title
         self.authors = []
         self.publisher = Publisher()
+        self.timesCited = 1
+
 
 class Publisher:
     def __init__(self):
@@ -28,13 +31,7 @@ class Publisher:
         self.issue = ''
 
 
-
 def parseReference(XMLroot, device):
-
-    # if not os.path.exists('References'):
-    #     os.makedirs('References')
-    #
-    # os.chdir('References')
 
     count = 0
 
@@ -67,12 +64,6 @@ def parseReference(XMLroot, device):
                     except Exception as e:
                         print(e)
                         print("problem writing publishers")
-
-
-                # filename = "[" + str(count) + "].txt"
-
-                # with open(filename, "w+", encoding='utf8') as refFile:
-                #     refFile.write("Title: " + title)
 
             except Exception:
                 print("no title found for ref")

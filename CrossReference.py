@@ -1,42 +1,8 @@
 import json
 # Dictionary where the modified name of the device is the key, and the device object is the value
-devices = {}
 visited = []
 edges = {}
 data = {}
-
-# Device class to represent a single data extracted from a PDF
-
-
-class Device:
-
-    def __init__(self, name):
-        self.name = name #also the name of the folder it's in
-        self.backward_ref = []
-        self.forward_ref = []
-        self.authors = []
-        self.publisher = ''
-        self.sections = {}
-        self.figures = {}
-        self.citations = []
-
-
-def init_device(name):
-    # this assumes that a session has already been created
-    new_device = Device(name)
-    modified_name = modify_name(name)
-    # add_forward_ref(new_device, modified_name, False, None)
-    devices[modified_name] = new_device
-
-    return new_device
-
-# Parameters:
-# device: device where backwardRef should be added
-# ref_name: name of the reference (not modified)
-def add_backward_ref(device, ref_name):
-
-    ref_name = modify_name(ref_name)
-    device.backward_ref.append(ref_name)
 
 
 def modify_name(title):
@@ -48,23 +14,16 @@ def modify_name(title):
     return title
 
 
-def build_geneology():
+
+def build_geneology(devices):
     # dict where the device name is the key and the list of other devices is the value
-    initialize_forward_ref()
     # initialize the edge-list
     for device in devices:
         device = devices[device]
         if len(device.forward_ref) != 0:
-             edges[modify_name(device.name)] = device.forward_ref
+            edges[modify_name(device.name)] = device.forward_ref
 
     build_JSON(edges)
-
-
-def initialize_forward_ref():
-    for device in devices:
-        for ref in devices[device].backward_ref:
-            if ref in devices:
-                devices[ref].forward_ref.append(device)
 
 
 def build_JSON(edges):

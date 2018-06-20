@@ -3,9 +3,8 @@ import xml.etree.ElementTree as ET
 import json
 import SectionParser
 import ReferenceParser
-import AuthorParser
-import PublicationParser
-from CrossReference import init_device
+from MetaDataParser import parseAuthor, parsePub
+from Device import init_device
 
 
 # MainParser that can be called from the commandline
@@ -32,15 +31,13 @@ def parse_files(XMLfile_path, JSONfile_path):
         paper_title = paper_title[:150]
         paper_title = paper_title + "_"
 
-
     if type(paper_title) is not str:
         paper_title = str(paper_title, 'utf8')
 
     device = init_device(paper_title)
 
-
-    AuthorParser.parseAuthor(root, device)
-    PublicationParser.parsePub(root, device)
+    parseAuthor(root, device)
+    parsePub(root, device)
     ReferenceParser.parseReference(root, device)
     SectionParser.parseSection(root, device)
     parse_JSON(JSONfile_path, device)
