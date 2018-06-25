@@ -44,6 +44,15 @@ def parse_files(XMLfile_path, JSONfile_path):
 
     if not os.path.exists(paper_title):
         os.makedirs(paper_title)
+    else: # for some reason folder already exists then
+        if device.date is not '':
+            paper_title = paper_title + "(" + device.date + ')'
+            device.name = paper_title
+            os.makedirs(paper_title)
+        else:
+            paper_title = paper_title + '()'
+            device.name = paper_title
+            # what are the chances of 3 papers having the same name?
 
     os.chdir(paper_title)
     if not os.path.exists('Figures'):

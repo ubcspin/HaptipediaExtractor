@@ -18,6 +18,7 @@ def parseSection(XMLroot, device):
     parse_abstract(XMLroot, device)
     parseSectionTitle(XMLroot, device)
 
+
 def parse_abstract(root, device):
 
     abstract = next(root.iter("{http://www.tei-c.org/ns/1.0}abstract"))
@@ -44,18 +45,32 @@ def parseSectionTitle(root, device):
 
         if sectionNumber is not None:
             section_file = sectionNumber + ' ' + sectionTitle
-            # sectionFile = open(sectionNumber + " " + sectionTitle + ".txt", 'a+', encoding='utf8')
         else:
             section_file = sectionTitle
-            # sectionFile = open(sectionTitle + ".txt", 'a+', encoding='utf8')
 
         paragraphs = []
+        cite_occurrence = {}
 
         for paragraph in div.findall("{http://www.tei-c.org/ns/1.0}p"):
             text = paragraph.text
             for ref in paragraph.findall("{http://www.tei-c.org/ns/1.0}ref"):  # extract text after the references
-                if ref.tail is not None:
-                    text = text + ref.tail
+                if ref is not None:
+                    attributes = ref.attrib
+                    if 'type' in attributes:
+                        if attributes['type'] is 'bibr':
+                            ref_number = attributes['target']
+                            ref_number = int(ref_number[2:]) + 1
+                            if ref_number not in cite_occurrence:
+                                cite_occurrence[ref_number] = 0;
+                            else:
+                                val = cite_occurrence[ref_number]
+                                cite_occurrence[ref_number] = ++val
+
+                    if ref.tail is not None:
+
+                        text = text + ref.text + ref.tail
+                    else:
+                        text = text + ref.text
 
             paragraphs.append(text)
 

@@ -16,7 +16,7 @@ def writeFiles(devices):
 
 def write_metadata(device):
     with open("Authors.txt", 'w+', encoding='utf8') as file:
-        if device.authors != []:
+        if device.authors is not []:
             for author in device.authors:
                 file.write(author + '\n')
         else:

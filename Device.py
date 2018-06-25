@@ -9,6 +9,7 @@ class Device:
         self.backward_ref = []
         self.forward_ref = []
         self.authors = []
+        self.date = ''
         self.publisher = ''
         self.sections = {}
         self.figures = {}

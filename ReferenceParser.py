@@ -1,6 +1,4 @@
-import os
 from Device import add_backward_ref
-import xml.etree.ElementTree as ET
 
 # Parser to extract References from an XML file
 # References include:

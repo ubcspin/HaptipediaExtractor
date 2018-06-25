@@ -26,33 +26,27 @@ Before Running script:
 
 
 def main():
-
-    # # go to the director of where the PDF's are located
-    # os.chdir(input_dir)
-    #
-    # # remove spaces from names of PDF's since spaces causes pdffigures2 to skip pdf
-    # for file in glob.glob("*.pdf"):
-    #     remove_space(file)
-    #
-    # os.chdir(pdffigures2_dir)
-    #
-    # if not os.path.exists(output_dir):
-    #     os.makedirs(output_dir)
-    #
-    # start = time.time()
-    # extract_figures(input_dir, output_dir)
-    # finish = time.time()
-    # print("Extracted Figures in " + str(finish - start) + "seconds")
-    #
-    # os.chdir(input_dir)
-    # start = time.time()
-    # data_extractor()
-    # finish = time.time()
-    # print("Extracted Data in " + str(finish - start) + " seconds")
-
-    os.chdir(output_dir)
+    start = time.time()
+    extract_figures(input_dir, output_dir)
+    finish = time.time()
+    print("Extracted Figures in " + str(finish - start) + "seconds")
 
     start = time.time()
+    data_extractor()
+    finish = time.time()
+    print("Extracted Data in " + str(finish - start) + " seconds")
+
+    start = time.time()
+    parse_output_files()
+    finish = time.time()
+    print("Parsed Files in " + str(finish - start) + " seconds")
+
+    clean_output_folder()
+
+
+def parse_output_files():
+    os.chdir(output_dir)
+
     for file in glob.glob('*.xml'):
         XMLfile_path = file
         pdf_name = XMLfile_path[:-4]
@@ -65,7 +59,7 @@ def main():
             if type(folder_name) is bytes:
                 folder_name = folder_name.decode('utf8')
 
-            folder_name = folder_name.strip()     # remove any trailing spaces
+            folder_name = folder_name.strip()  # remove any trailing spaces
             organize_images(pdf_name, folder_name)
 
     initialize_forward_ref()
@@ -73,15 +67,10 @@ def main():
     build_geneology(devices)
     if writeToFile:
         writeFiles(devices)
-    finish = time.time()
-
-    print("Parsed Files in " + str(finish - start) + " seconds")
-
-    os.chdir(output_dir)
-    clean_output_folder()
 
 
 def clean_output_folder():
+    os.chdir(output_dir)
     os.makedirs('JSON and XML Files')
     for file in (glob.glob('*.xml') + glob.glob('*.json')):
         dest = 'JSON and XML Files/' + file
@@ -101,6 +90,7 @@ def organize_images(pdf_name, folder_name):
 
 
 def data_extractor():
+    os.chdir(input_dir)
 
     for file in glob.glob('*.pdf'):
 
@@ -130,6 +120,18 @@ def data_extractor():
 
 
 def extract_figures(input_path, output_path):
+
+    # go to the director of where the PDF's are located
+    os.chdir(input_dir)
+
+    # remove spaces from names of PDF's since spaces causes pdffigures2 to skip pdf
+    for file in glob.glob("*.pdf"):
+        remove_space(file)
+
+    os.chdir(pdffigures2_dir)
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     command = ' '.join(['run-main', 'org.allenai.pdffigures2.FigureExtractorBatchCli', input_path, '-m', output_path, '-d', output_path])
     sbt_command = ' '.join(['sbt', '"' + command + '"'])

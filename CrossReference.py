@@ -14,7 +14,6 @@ def modify_name(title):
     return title
 
 
-
 def build_geneology(devices):
     # dict where the device name is the key and the list of other devices is the value
     # initialize the edge-list
@@ -73,7 +72,10 @@ def create_children(name):
 def find(name, data):
     for dict in data:
         if name != dict['name']:
-            find(name, dict['children'])
+            try:
+                find(name, dict['children'])
+            except:
+                pass
 
         else:
             new_child = dict
