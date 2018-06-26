@@ -26,13 +26,6 @@ def init_device(name):
     return new_device
 
 
-def initialize_forward_ref():
-    for device in devices:
-        for ref in devices[device].backward_ref:
-            if ref in devices:
-                devices[ref].forward_ref.append(device)
-
-
 # Parameters:
 # device: device where backwardRef should be added
 # ref_name: name of the reference (not modified)

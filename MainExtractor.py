@@ -3,8 +3,8 @@ import glob
 import time
 import requests
 import subprocess
-from CrossReference import build_geneology
-from Device import initialize_forward_ref, get_devices
+from CrossReference import build_geneology, initialize_cross_ref
+from Device import get_devices
 from ConfigPaths import input_dir, output_dir, pdffigures2_dir, writeToFile
 from MainParser import parse_files
 from TextWriter import writeFiles
@@ -26,22 +26,22 @@ Before Running script:
 
 
 def main():
-    start = time.time()
-    extract_figures(input_dir, output_dir)
-    finish = time.time()
-    print("Extracted Figures in " + str(finish - start) + "seconds")
-
-    start = time.time()
-    data_extractor()
-    finish = time.time()
-    print("Extracted Data in " + str(finish - start) + " seconds")
+    # start = time.time()
+    # extract_figures(input_dir, output_dir)
+    # finish = time.time()
+    # print("Extracted Figures in " + str(finish - start) + "seconds")
+    #
+    # start = time.time()
+    # data_extractor()
+    # finish = time.time()
+    # print("Extracted Data in " + str(finish - start) + " seconds")
 
     start = time.time()
     parse_output_files()
     finish = time.time()
     print("Parsed Files in " + str(finish - start) + " seconds")
 
-    clean_output_folder()
+    # clean_output_folder()
 
 
 def parse_output_files():
@@ -62,11 +62,11 @@ def parse_output_files():
             folder_name = folder_name.strip()  # remove any trailing spaces
             organize_images(pdf_name, folder_name)
 
-    initialize_forward_ref()
     devices = get_devices()
+    initialize_cross_ref(devices)
     build_geneology(devices)
-    if writeToFile:
-        writeFiles(devices)
+    # if writeToFile:
+    #     writeFiles(devices)
 
 
 def clean_output_folder():
