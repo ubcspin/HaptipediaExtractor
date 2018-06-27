@@ -4,7 +4,7 @@ import json
 import SectionParser
 import ReferenceParser
 from MetaDataParser import parseAuthor, parsePub
-from Device import init_device
+from Device import init_device, update_key
 
 
 # MainParser that can be called from the commandline
@@ -34,7 +34,7 @@ def parse_files(XMLfile_path, JSONfile_path):
     if type(paper_title) is not str:
         paper_title = str(paper_title, 'utf8')
 
-    device = init_device(paper_title)
+    device, device_key = init_device(paper_title)
 
     parseAuthor(root, device)
     parsePub(root, device)
@@ -48,11 +48,14 @@ def parse_files(XMLfile_path, JSONfile_path):
         if device.date is not '':
             paper_title = paper_title + "(" + device.date + ')'
             device.name = paper_title
+            update_key(device.date, device_key)
+
             os.makedirs(paper_title)
         else:
-            paper_title = paper_title + '()'
+            paper_title = paper_title + '(1)'
             device.name = paper_title
             # what are the chances of 3 papers having the same name?
+            os.makedirs(paper_title)
 
     os.chdir(paper_title)
     if not os.path.exists('Figures'):

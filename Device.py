@@ -17,13 +17,19 @@ class Device:
 
 
 def init_device(name):
-    # this assumes that a session has already been created
     new_device = Device(name)
     modified_name = modify_name(name)
-    # add_forward_ref(new_device, modified_name, False, None)
+    if modified_name in devices:
+        modified_name = modified_name + ' (1)'
     devices[modified_name] = new_device
 
-    return new_device
+    return new_device, modified_name
+
+
+def update_key(date, device_key):
+    new_key = device_key[:-3] + '(' + date + ')'
+    devices[new_key] = devices[device_key]
+    del devices[device_key]
 
 
 # Parameters:

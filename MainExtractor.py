@@ -41,7 +41,7 @@ def main():
     finish = time.time()
     print("Parsed Files in " + str(finish - start) + " seconds")
 
-    # clean_output_folder()
+    clean_output_folder()
 
 
 def parse_output_files():
@@ -65,8 +65,8 @@ def parse_output_files():
     devices = get_devices()
     initialize_cross_ref(devices)
     build_geneology(devices)
-    # if writeToFile:
-    #     writeFiles(devices)
+    if writeToFile:
+        writeFiles(devices)
 
 
 def clean_output_folder():

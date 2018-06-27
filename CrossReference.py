@@ -22,19 +22,21 @@ def initialize_forward_ref(devices):
             if ref in devices:
                 devices[ref].forward_ref.append(device)
 
+
 def initialize_cross_ref(devices):
     for device in devices:
         for ref in devices[device].backward_ref:
-            if within_tol(devices, ref):
-                devices[ref].forward_ref.append(device)
+            is_in_tol, ref_device = within_tol(devices, ref)
+            if is_in_tol:
+                devices[ref_device].forward_ref.append(device)
 
 
 def within_tol(devices, ref):
     for device in devices:
         tol = calculate_tol(device, ref)
         if tol > 0.75:
-            return True
-    return False
+            return True, device
+    return False, None
 
 
 def calculate_tol(device, ref):
@@ -53,8 +55,12 @@ def calculate_tol(device, ref):
     i = 0
     while i < lower_bound:
         if i == 0:
-            if reflist[i] == device_str_list[i] or reflist[i] == device_str_list[i+1] or reflist[i+1] == device_str_list[i]:
+            if reflist[i] == device_str_list[i]:
                 score += 1
+            elif i+1 < upper_bound and i+1 < lower_bound:
+                if reflist[i] == device_str_list[i+1] or reflist[i+1] == device_str_list[i]:
+                    score += 1
+
         else:
             if reflist[i] == device_str_list[i]:
                 score += 1
@@ -65,30 +71,9 @@ def calculate_tol(device, ref):
         i += 1
 
     score = score/upper_bound
-    if score > 0.75:
-        print("Comparing %s and %s. Their tol is %f" % (device, ref, score))
+    if 0.5 < score < 0.85:
+        print("Comparing %s AND %s. Their tol is %f" % (device, ref, score))
     return score
-
-
-        # if i < len(device_str_list):
-        #     if i == 0:
-        #         if reflist[i] == device_str_list[i]:
-        #             score +=1
-        #         elif i + 1 < len(device_str_list):
-        #             if reflist[i] == device_str_list[i+1]:
-        #                 score += 1
-        #     elif i == len(reflist) - 1:
-        #         if reflist[i] == device_str_list[i] or reflist[i] == device_str_list[i-1]:
-        #             score += 1
-        #         elif i + 1 < len(device_str_list):
-        #             if reflist[i] == device_str_list[i+1]:
-        #                 score += 1
-        #     else:
-        #         if reflist[i] == device_str_list[i] or reflist[i] == device_str_list[i-1]:
-        #             score += 1
-        #         elif i + 1 < len(device_str_list):
-        #             if reflist[i] == device_str_list[i+1]:
-        #                 score += 1
 
 
 def build_geneology(devices):
