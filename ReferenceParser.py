@@ -17,7 +17,7 @@ class Reference:
         self.title = title
         self.authors = []
         self.publisher = Publisher()
-        self.timesCited = 1
+        self.timesCited = 0
 
 
 class Publisher:
@@ -29,7 +29,7 @@ class Publisher:
         self.issue = ''
 
 
-def parseReference(XMLroot, device):
+def parseReference(XMLroot, device, cite_vals):
 
     count = 0
 
@@ -43,34 +43,33 @@ def parseReference(XMLroot, device):
                 # title is either an analytic element or monogr element in the XML File
                 ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
 
+            count += 1
             try:
                 title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
 
                 if title is not None:
-                    add_backward_ref(device, title)
-
-                    count += 1
                     reference = Reference(title, count)
 
                     try:
-                        writeAuthorsToFile(ref, reference)
+                        writeAuthors(ref, reference)
                     except:
                         print("problem writing authors")
                     try:
-                        writePublishersToFile(title, biblStruct, reference)
+                        writePublishers(title, biblStruct, reference)
+                        if count in cite_vals:
+                            reference.timesCited = cite_vals[count]
                         device.citations.append(reference)
                     except Exception as e:
                         print(e)
                         print("problem writing publishers")
 
-            except Exception:
-                print("no title found for ref")
+                    add_backward_ref(device, reference)
 
-    for backref in device.forward_ref:
-        print(backref)
+            except Exception as e:
+                print(e)
 
 
-def writePublishersToFile(title, biblStruct, ref_object):
+def writePublishers(title, biblStruct, ref_object):
 
     pubRef = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
     pubTitle = pubRef.find("{http://www.tei-c.org/ns/1.0}title").text
@@ -117,7 +116,7 @@ def writePublishersToFile(title, biblStruct, ref_object):
             pass
 
 
-def writeAuthorsToFile(ref, ref_object):
+def writeAuthors(ref, ref_object):
 
     for author in ref.iter("{http://www.tei-c.org/ns/1.0}author"):
         persName = author.find("{http://www.tei-c.org/ns/1.0}persName")

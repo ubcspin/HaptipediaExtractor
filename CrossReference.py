@@ -16,19 +16,13 @@ def modify_name(title):
     return title
 
 
-def initialize_forward_ref(devices):
-    for device in devices:
-        for ref in devices[device].backward_ref:
-            if ref in devices:
-                devices[ref].forward_ref.append(device)
-
-
 def initialize_cross_ref(devices):
     for device in devices:
-        for ref in devices[device].backward_ref:
+        for ref in devices[device].backward_ref:  # returns all the keys of backward_ref
+            ref_occurance = devices[device].backward_ref[ref]
             is_in_tol, ref_device = within_tol(devices, ref)
             if is_in_tol:
-                devices[ref_device].forward_ref.append(device)
+                devices[ref_device].forward_ref[device] = ref_occurance
 
 
 def within_tol(devices, ref):
@@ -71,7 +65,7 @@ def calculate_tol(device, ref):
         i += 1
 
     score = score/upper_bound
-    if 0.5 < score < 0.85:
+    if 0.5 < score < 1:
         print("Comparing %s AND %s. Their tol is %f" % (device, ref, score))
     return score
 

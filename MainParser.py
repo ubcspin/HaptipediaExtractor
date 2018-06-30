@@ -38,8 +38,8 @@ def parse_files(XMLfile_path, JSONfile_path):
 
     parseAuthor(root, device)
     parsePub(root, device)
-    ReferenceParser.parseReference(root, device)
-    SectionParser.parseSection(root, device)
+    cite_vals = SectionParser.parseSection(root, device)
+    ReferenceParser.parseReference(root, device, cite_vals)
     parse_JSON(JSONfile_path, device)
 
     if not os.path.exists(paper_title):
@@ -67,22 +67,25 @@ def parse_files(XMLfile_path, JSONfile_path):
 
 def parse_JSON(file, device):
 
-    with open(file, 'r') as json_file:
-        data = json.load(json_file)
+    try:
+        with open(file, 'r') as json_file:
+            data = json.load(json_file)
 
-        for x in range(len(data)):
-            caption = data[x]["caption"]
-            figType = data[x]["figType"]
-            number = data[x]['name']
+            for x in range(len(data)):
+                caption = data[x]["caption"]
+                figType = data[x]["figType"]
+                number = data[x]['name']
 
-            figure_number = number
+                figure_number = number
 
-            if figType == 'Figure':
-                figure_number = "Figure " + number
-            elif figType == 'Table':
-                figure_number = 'Table ' + number
+                if figType == 'Figure':
+                    figure_number = "Figure " + number
+                elif figType == 'Table':
+                    figure_number = 'Table ' + number
 
-            device.figures[figure_number] = caption
+                device.figures[figure_number] = caption
+    except:
+        print("No JSON found for " + file)
 
 
 

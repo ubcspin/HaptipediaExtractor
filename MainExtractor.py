@@ -41,26 +41,29 @@ def main():
     finish = time.time()
     print("Parsed Files in " + str(finish - start) + " seconds")
 
-    clean_output_folder()
+    # clean_output_folder()
 
 
 def parse_output_files():
     os.chdir(output_dir)
 
+    count = 1
     for file in glob.glob('*.xml'):
+        number_files = str(len(glob.glob('*.xml')))
         XMLfile_path = file
         pdf_name = XMLfile_path[:-4]
         JSONfile_path = output_dir + pdf_name + '.json'
         print("XML: " + XMLfile_path)
         print("JSON: " + JSONfile_path)
         folder_name = parse_files(XMLfile_path, JSONfile_path)
-
+        print("Parsed file " + str(count) + " out of " + number_files)
         if folder_name is not None:
             if type(folder_name) is bytes:
                 folder_name = folder_name.decode('utf8')
 
             folder_name = folder_name.strip()  # remove any trailing spaces
             organize_images(pdf_name, folder_name)
+        count += 1
 
     devices = get_devices()
     initialize_cross_ref(devices)

@@ -10,6 +10,7 @@ def writeFiles(devices):
         write_sections(device)
         write_figures(device)
         write_references(device)
+        write_forward_refs(device, devices)
 
         os.chdir('..')
 
@@ -38,9 +39,13 @@ def write_sections(device):
             with open('Abstract.txt', 'w+', encoding='utf8') as file:
                 file.write(device.sections[section])
         else:
-            with open(section + '.txt', 'w+', encoding='utf8') as file:
-                for paragraph in device.sections[section]:
-                    file.write(paragraph + '\n')
+            try:
+                with open(section + '.txt', 'w+', encoding='utf8') as file:
+                    for paragraph in device.sections[section]:
+                        file.write(paragraph + '\n')
+            except:
+                pass
+                # TODO: fix error handling
 
     os.chdir('..')
 
@@ -49,8 +54,12 @@ def write_figures(device):
     os.chdir('Figures')
     for figure_number in device.figures:
         figure_caption = device.figures[figure_number]
-        with open(figure_number + '.txt', 'w+', encoding='utf8') as file:
-            file.write(figure_caption)
+        try:
+            with open(figure_number + '.txt', 'w+', encoding='utf8') as file:
+                file.write(figure_caption)
+            # TODO: handle this exception
+        except:
+            pass
     os.chdir('..')
 
 
@@ -71,8 +80,18 @@ def write_references(device):
             file.write('Page: ' + publisher.page + '\n')
             file.write('Volume: ' + publisher.volume + '\n')
             file.write('Issue: ' + publisher.date + '\n')
+            file.write('Times Cited: ' + str(citation.timesCited) + '\n')
 
     os.chdir('..')
+
+
+def write_forward_refs(device, devices):
+    with open("Papers That Cited This Paper.txt", 'w+', encoding='utf8') as file:
+        for ref in device.forward_ref:
+            forward_ref = devices[ref]
+            ref_occurance = device.forward_ref[ref]
+            file.write(forward_ref.name + "AND CITED " + str(ref_occurance) + " TIMES" + '\n')
+
 
 
 

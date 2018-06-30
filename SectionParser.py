@@ -16,8 +16,9 @@ forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 def parseSection(XMLroot, device):
 
     parse_abstract(XMLroot, device)
-    parseSectionTitle(XMLroot, device)
+    cite_vals = parseSectionTitle(XMLroot, device)
 
+    return cite_vals
 
 def parse_abstract(root, device):
 
@@ -36,6 +37,7 @@ def parseSectionTitle(root, device):
 
     body = next(root.iter("{http://www.tei-c.org/ns/1.0}body"))
 
+    cite_occurrence = {}
     for div in body.iter("{http://www.tei-c.org/ns/1.0}div"):
         section = div.find("{http://www.tei-c.org/ns/1.0}head")
 
@@ -49,7 +51,6 @@ def parseSectionTitle(root, device):
             section_file = sectionTitle
 
         paragraphs = []
-        cite_occurrence = {}
 
         for paragraph in div.findall("{http://www.tei-c.org/ns/1.0}p"):
             text = paragraph.text
@@ -57,23 +58,31 @@ def parseSectionTitle(root, device):
                 if ref is not None:
                     attributes = ref.attrib
                     if 'type' in attributes:
-                        if attributes['type'] is 'bibr':
-                            ref_number = attributes['target']
-                            ref_number = int(ref_number[2:]) + 1
-                            if ref_number not in cite_occurrence:
-                                cite_occurrence[ref_number] = 0;
-                            else:
-                                val = cite_occurrence[ref_number]
-                                cite_occurrence[ref_number] = ++val
+                        if attributes['type'] == 'bibr':
+                            if 'target' in attributes:
+                                ref_number = attributes['target']
+                                if ref_number is not None:
+                                    ref_number = int(ref_number[2:]) + 1
+                                    if ref_number not in cite_occurrence:
+                                        cite_occurrence[ref_number] = 1;
+                                        print(str(ref_number) + " cited: one time")
+                                    else:
+                                        val = cite_occurrence[ref_number]
+                                        val += 1
+                                        cite_occurrence[ref_number] = val
+                                        print(str(ref_number) + " cited: %s times" % str(val))
 
-                    if ref.tail is not None:
-
+                    if ref.tail and ref.text is not None:
                         text = text + ref.text + ref.tail
-                    else:
+                    elif ref.text is not None:
                         text = text + ref.text
 
             paragraphs.append(text)
 
         device.sections[section_file] = paragraphs
+
+    return cite_occurrence
+
+
 
 

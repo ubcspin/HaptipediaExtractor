@@ -6,8 +6,8 @@ class Device:
 
     def __init__(self, name):
         self.name = name  # also the name of the folder it's in
-        self.backward_ref = []
-        self.forward_ref = []
+        self.backward_ref = {} # name of ref is key, value is the number of times ref was cited
+        self.forward_ref = {} # name of ref is key, value is the number of times ref was cited
         self.authors = []
         self.date = ''
         self.publisher = ''
@@ -35,9 +35,10 @@ def update_key(date, device_key):
 # Parameters:
 # device: device where backwardRef should be added
 # ref_name: name of the reference (not modified)
-def add_backward_ref(device, ref_name):
-    ref_name = modify_name(ref_name)
-    device.backward_ref.append(ref_name)
+def add_backward_ref(device, ref):
+    ref_name = modify_name(ref.title)
+    ref_occurance = ref.timesCited
+    device.backward_ref[ref_name] = ref_occurance
 
 
 def get_devices():
