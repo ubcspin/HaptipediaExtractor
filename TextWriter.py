@@ -1,7 +1,10 @@
 import os
 
 
-def writeFiles(devices):
+def writeFiles(devices, connections):
+
+    write_connections(connections)
+
     for device in devices:
         device = devices[device]
         os.chdir(device.name)
@@ -13,6 +16,20 @@ def writeFiles(devices):
         write_forward_refs(device, devices)
 
         os.chdir('..')
+
+
+def write_connections(connections):
+    with open("Cross References.txt", 'w+', encoding='utf8') as file:
+        for connection in connections:
+            file.write ('%s referenced %s (Cited %s times)\n' % (connection.name, connection.cited, connection.times_cited))
+            file.write('Shared Authors:\n')
+            if connection.shared_authors != []:
+                for author in connection.shared_authors:
+                    file.write(author + '\n')
+            file.write('Shared References:\n')
+            if connection.shared_refs != []:
+                for ref in connection.shared_refs:
+                    file.write(ref.title + '\n')
 
 
 def write_metadata(device):
@@ -34,20 +51,27 @@ def write_sections(device):
     if not os.path.exists('Sections'):
         os.makedirs('Sections')
     os.chdir('Sections')
-    for section in device.sections:
-        if section == 'Abstract':
-            with open('Abstract.txt', 'w+', encoding='utf8') as file:
-                file.write(device.sections[section])
-        else:
-            try:
-                with open(section + '.txt', 'w+', encoding='utf8') as file:
-                    for paragraph in device.sections[section]:
-                        file.write(paragraph + '\n')
-            except:
-                pass
-                # TODO: fix error handling
+
+    write_abstract(device)
+    try:
+        with open('Sections.txt', 'w+', encoding='utf8') as file:
+            for section in device.sections:
+                file.write(section + '\n' + '\n')
+
+                for paragraph in device.sections[section]:
+                    file.write(paragraph)
+
+                file.write('\n' + '\n')
+    except:
+        pass
+        # TODO: fix error handling
 
     os.chdir('..')
+
+
+def write_abstract(device):
+    with open('Abstract.txt', 'w+', encoding='utf8') as file:
+        file.write(device.sections['Abstract'])
 
 
 def write_figures(device):
@@ -67,7 +91,7 @@ def write_references(device):
     if not os.path.exists('References'):
         os.makedirs('References')
     os.chdir('References')
-    for citation in device.citations:
+    for citation in device.backward_ref:
         with open("[" + str(citation.refNumber) + "].txt", 'w+', encoding='utf8') as file:
             file.write('Title: ' + citation.title + '\n')
             file.write('Authors:\n')
@@ -87,10 +111,11 @@ def write_references(device):
 
 def write_forward_refs(device, devices):
     with open("Papers That Cited This Paper.txt", 'w+', encoding='utf8') as file:
+        file.write("Data from this PDF: " + device.pdf)
         for ref in device.forward_ref:
             forward_ref = devices[ref]
-            ref_occurance = device.forward_ref[ref]
-            file.write(forward_ref.name + "AND CITED " + str(ref_occurance) + " TIMES" + '\n')
+            file.write(forward_ref.title + "AND CITED " + str(forward_ref.timesCited) + " TIMES" + '\n')
+
 
 
 

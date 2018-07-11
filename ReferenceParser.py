@@ -1,4 +1,4 @@
-from Device import add_backward_ref
+from CrossReference import modify_name
 
 # Parser to extract References from an XML file
 # References include:
@@ -15,6 +15,7 @@ class Reference:
     def __init__(self, title, refNumber):
         self.refNumber = refNumber
         self.title = title
+        self.key = modify_name(title)
         self.authors = []
         self.publisher = Publisher()
         self.timesCited = 0
@@ -31,9 +32,11 @@ class Publisher:
 
 def parseReference(XMLroot, device, cite_vals):
 
-    count = 0
+    count = 1
 
-    for biblStruct in XMLroot.iter("{http://www.tei-c.org/ns/1.0}biblStruct"):
+    ref_root = next(XMLroot.iter("{http://www.tei-c.org/ns/1.0}listBibl"))
+
+    for biblStruct in ref_root.iter("{http://www.tei-c.org/ns/1.0}biblStruct"):
 
         if len(biblStruct.attrib.keys()) != 0:  # used to separate paper title from reference titles
 
@@ -43,7 +46,7 @@ def parseReference(XMLroot, device, cite_vals):
                 # title is either an analytic element or monogr element in the XML File
                 ref = biblStruct.find("{http://www.tei-c.org/ns/1.0}monogr")
 
-            count += 1
+
             try:
                 title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
 
@@ -58,15 +61,15 @@ def parseReference(XMLroot, device, cite_vals):
                         writePublishers(title, biblStruct, reference)
                         if count in cite_vals:
                             reference.timesCited = cite_vals[count]
-                        device.citations.append(reference)
+                        device.backward_ref.append(reference)
                     except Exception as e:
                         print(e)
-                        print("problem writing publishers")
-
-                    add_backward_ref(device, reference)
+                        print("problem writing publisher")
 
             except Exception as e:
                 print(e)
+
+        count += 1
 
 
 def writePublishers(title, biblStruct, ref_object):
@@ -104,13 +107,10 @@ def writePublishers(title, biblStruct, ref_object):
                 if biblScope.get('from') and biblScope.get('to') is not None:
                     pages = biblScope.get('from') + " to " + biblScope.get('to')
                     ref_object.publisher.page = pages
-                # refFile.write("\nPages: " + biblScope.get('from') + " to " + biblScope.get('to'))
             elif unit == 'volume':
                 ref_object.publisher.volume = val
-                # refFile.write("\nVolume: " + val)
             elif unit == 'issue':
                 ref_object.publisher.issue = val
-                # refFile.write("\nIssue" + val)
         except Exception as e:
             print(e)
             pass

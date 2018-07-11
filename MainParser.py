@@ -4,7 +4,7 @@ import json
 import SectionParser
 import ReferenceParser
 from MetaDataParser import parseAuthor, parsePub
-from Device import init_device, update_key
+from Device import init_device, update_name
 
 
 # MainParser that can be called from the commandline
@@ -14,7 +14,7 @@ from Device import init_device, update_key
 forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 
 
-def parse_files(XMLfile_path, JSONfile_path):
+def parse_files(XMLfile_path, JSONfile_path, pdf_name):
 
     tree = ET.parse(XMLfile_path)
     root = tree.getroot()
@@ -34,7 +34,7 @@ def parse_files(XMLfile_path, JSONfile_path):
     if type(paper_title) is not str:
         paper_title = str(paper_title, 'utf8')
 
-    device, device_key = init_device(paper_title)
+    device, device_key = init_device(paper_title, pdf_name)
 
     parseAuthor(root, device)
     parsePub(root, device)
@@ -44,18 +44,8 @@ def parse_files(XMLfile_path, JSONfile_path):
 
     if not os.path.exists(paper_title):
         os.makedirs(paper_title)
-    else: # for some reason folder already exists then
-        if device.date is not '':
-            paper_title = paper_title + "(" + device.date + ')'
-            device.name = paper_title
-            update_key(device.date, device_key)
-
-            os.makedirs(paper_title)
-        else:
-            paper_title = paper_title + '(1)'
-            device.name = paper_title
-            # what are the chances of 3 papers having the same name?
-            os.makedirs(paper_title)
+    else: # for some reason the name already exists then
+        paper_title = fix_same_title(device, paper_title)
 
     os.chdir(paper_title)
     if not os.path.exists('Figures'):
@@ -63,6 +53,36 @@ def parse_files(XMLfile_path, JSONfile_path):
     os.chdir('..')
 
     return paper_title
+
+
+def fix_same_title(device, paper_title):
+    if device.date is not '':
+        date_title = paper_title + "(" + device.date + ")"
+        if os.path.exists(date_title):
+            count = 1
+            new_title = date_title
+            while os.path.exists(new_title):
+                new_title = date_title + '(' + str(count) + ')'
+                count += 1
+            update_name(new_title, device)
+            os.makedirs(new_title)
+            return new_title
+        else:
+            update_name(date_title, device)
+            os.makedirs(date_title)
+            return date_title
+
+    else:
+        count = 1
+        new_title = paper_title
+        while os.path.exists(new_title):
+            new_title = paper_title + '(' + str(count) + ')'
+            count += 1
+
+        os.makedirs(new_title)
+        update_name(new_title, device)
+        return new_title
+
 
 
 def parse_JSON(file, device):
@@ -79,9 +99,9 @@ def parse_JSON(file, device):
                 figure_number = number
 
                 if figType == 'Figure':
-                    figure_number = "Figure " + number
+                    figure_number = "Figure" + number
                 elif figType == 'Table':
-                    figure_number = 'Table ' + number
+                    figure_number = 'Table' + number
 
                 device.figures[figure_number] = caption
     except:

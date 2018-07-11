@@ -1,6 +1,7 @@
 import os
 import glob
 import xml.etree.ElementTree as ET
+import re
 
 # Parser to Extract Section Titles and Sections from an XMLfile
 # OutputFile is temporarily placed in an output file, later placed into a database
@@ -63,6 +64,7 @@ def parseSectionTitle(root, device):
                                 ref_number = attributes['target']
                                 if ref_number is not None:
                                     ref_number = int(ref_number[2:]) + 1
+
                                     if ref_number not in cite_occurrence:
                                         cite_occurrence[ref_number] = 1;
                                         print(str(ref_number) + " cited: one time")
@@ -71,6 +73,26 @@ def parseSectionTitle(root, device):
                                         val += 1
                                         cite_occurrence[ref_number] = val
                                         print(str(ref_number) + " cited: %s times" % str(val))
+
+                                    #TODO: fix duplicate code here
+                            else:
+                                if ref.text is not None:
+                                    ref_regex = re.findall(r'\d+', ref.text)
+                                    if len(ref_regex) != 0:
+                                        ref_number = int(ref_regex[0])
+
+                                        if ref_number not in cite_occurrence:
+                                            cite_occurrence[ref_number] = 1;
+                                            print(str(ref_number) + " cited: one time")
+                                        else:
+                                            val = cite_occurrence[ref_number]
+                                            val += 1
+                                            cite_occurrence[ref_number] = val
+                                            print(str(ref_number) + " cited: %s times" % str(val))
+
+
+
+                            # TODO: come up with a way to improve the reference counting
 
                     if ref.tail and ref.text is not None:
                         text = text + ref.text + ref.tail

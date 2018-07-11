@@ -4,26 +4,35 @@ devices = {}
 
 class Device:
 
-    def __init__(self, name):
+    def __init__(self, name, pdf):
         self.name = name  # also the name of the folder it's in
-        self.backward_ref = {} # name of ref is key, value is the number of times ref was cited
-        self.forward_ref = {} # name of ref is key, value is the number of times ref was cited
+        self.key = modify_name(name)
+        self.backward_ref = [] # a list of reference objects
+        self.forward_ref = [] # a list of reference objects
         self.authors = []
+        self.abstract = ''
         self.date = ''
         self.publisher = ''
-        self.sections = {}
-        self.figures = {}
-        self.citations = []
+        self.sections = {} # name + '/Sections/Section.txt'
+        self.figures = {} # name + '/Figures/'
+        self.pdf = pdf
 
 
-def init_device(name):
-    new_device = Device(name)
+def init_device(name, pdf):
+    new_device = Device(name, pdf)
     modified_name = modify_name(name)
-    if modified_name in devices:
-        modified_name = modified_name + ' (1)'
+    count = 1
+    while modified_name in devices:
+        modified_name = modified_name + ' (' +str(count) + ')'
+        count += 1
     devices[modified_name] = new_device
 
     return new_device, modified_name
+
+
+def update_name(new_name, device):
+    device.name = new_name
+    device.key = modify_name(new_name)
 
 
 def update_key(date, device_key):

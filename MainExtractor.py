@@ -3,11 +3,12 @@ import glob
 import time
 import requests
 import subprocess
-from CrossReference import build_geneology, initialize_cross_ref
+from CrossReference import initialize_connections
 from Device import get_devices
 from ConfigPaths import input_dir, output_dir, pdffigures2_dir, writeToFile
 from MainParser import parse_files
 from TextWriter import writeFiles
+from AddToDatabase import add_data
 
 devices = {}
 times_taken = []
@@ -26,22 +27,22 @@ Before Running script:
 
 
 def main():
-    # start = time.time()
-    # extract_figures(input_dir, output_dir)
-    # finish = time.time()
-    # print("Extracted Figures in " + str(finish - start) + "seconds")
-    #
-    # start = time.time()
-    # data_extractor()
-    # finish = time.time()
-    # print("Extracted Data in " + str(finish - start) + " seconds")
+    start = time.time()
+    extract_figures(input_dir, output_dir)
+    finish = time.time()
+    print("Extracted Figures in " + str(finish - start) + "seconds")
+
+    start = time.time()
+    data_extractor()
+    finish = time.time()
+    print("Extracted Data in " + str(finish - start) + " seconds")
 
     start = time.time()
     parse_output_files()
     finish = time.time()
     print("Parsed Files in " + str(finish - start) + " seconds")
 
-    # clean_output_folder()
+    clean_output_folder()
 
 
 def parse_output_files():
@@ -55,7 +56,7 @@ def parse_output_files():
         JSONfile_path = output_dir + pdf_name + '.json'
         print("XML: " + XMLfile_path)
         print("JSON: " + JSONfile_path)
-        folder_name = parse_files(XMLfile_path, JSONfile_path)
+        folder_name = parse_files(XMLfile_path, JSONfile_path, pdf_name)
         print("Parsed file " + str(count) + " out of " + number_files)
         if folder_name is not None:
             if type(folder_name) is bytes:
@@ -66,10 +67,10 @@ def parse_output_files():
         count += 1
 
     devices = get_devices()
-    initialize_cross_ref(devices)
-    build_geneology(devices)
-    if writeToFile:
-        writeFiles(devices)
+    # add_data(devices) still need to design the schema for the database
+    connections = initialize_connections(devices)
+    writeFiles(devices, connections)
+
 
 
 def clean_output_folder():
@@ -87,7 +88,7 @@ def organize_images(pdf_name, folder_name):
     pdfs = glob.glob(pdf_name + '-Figure' + "*" +".png") + glob.glob(pdf_name + '-Table' + "*" +".png")
 
     for pdf in pdfs:
-        new_name = pdf[pdf_length:]
+        new_name = pdf[pdf_length:-6] + '.png'
         dest = folder_name + '/Figures/' + new_name
         os.rename(pdf, dest)
 
