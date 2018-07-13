@@ -51,7 +51,18 @@ def check_authors(device1, device2):
             author2_split = author2.split(' ')
             lastname_idx1 = len(author1_split) - 1
             lastname_idx2 = len(author2_split) - 1
-            if author1_split[lastname_idx1] == author2_split[lastname_idx2]:
+            same_firstname = True
+            if len(author1_split) > 1 and len(author2_split) > 1:
+                firstname1 = author1_split[0]
+                firstname2 = author2_split[0]
+                if firstname1 == firstname2:
+                    same_firstname = True
+                elif(firstname1[0] == firstname2[0]):
+                    same_firstname = True
+                else:
+                    same_firstname = False
+            same_lastname = author1_split[lastname_idx1] == author2_split[lastname_idx2]
+            if same_firstname and same_lastname:
                 shared_authors.append(author1)
 
     return shared_authors
@@ -61,7 +72,8 @@ def check_refs(device1, device2):
     shared_refs = []
     for ref1 in device1.backward_ref:
         for ref2 in device2.backward_ref:
-            if modify_name(ref1.title) == modify_name(ref2.title):
+            tol = calculate_tol(modify_name(ref1.title), modify_name(ref2.title))
+            if tol > 0.85:
                 shared_refs.append(ref1)
 
     return shared_refs
@@ -133,63 +145,3 @@ def build_geneology(devices):
         device = devices[device]
         if len(device.forward_ref) != 0:
             edges[modify_name(device.name)] = device.forward_ref
-
-# build_JSON(edges)
-
-
-# def build_JSON(edges):
-#     data['root'] = []
-#     for edge in edges:
-#         if edge not in visited:
-#             visited.append(edge)
-#             children = create_children(edge)
-#
-#             new_dict = {
-#                 'name': edge,
-#                 'children': children
-#             }
-#             data['root'].append(new_dict)
-#
-#     with open("Geneology.json", 'w+') as geneology:
-#         json.dump(data, geneology)
-#
-#
-# def create_children(name):
-#     children = []
-#     for child in edges[name]:
-#         if child in edges:
-#             if child in visited:
-#                 new_child = find(child, data['root'])
-#                 children.append(new_child)
-#
-#             else:
-#                 visited.append(child)
-#                 new_child = {
-#                     'name': child,
-#                     'children': create_children(child)
-#
-#                 }
-#                 children.append(new_child)
-#         else:  # this child has no children of it's own
-#             new_child = {
-#                 'name': child
-#             }
-#             children.append(new_child)
-#
-#     return children
-#
-#
-# #find the dict that has name as one of its keys in a nested dict
-#
-# def find(name, data):
-#     for dict in data:
-#         if name != dict['name']:
-#             try:
-#                 find(name, dict['children'])
-#             except:
-#                 pass
-#
-#         else:
-#             new_child = dict
-#             data.remove(dict)
-#             return new_child

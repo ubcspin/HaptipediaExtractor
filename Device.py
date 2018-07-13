@@ -10,6 +10,7 @@ class Device:
         self.backward_ref = [] # a list of reference objects
         self.forward_ref = [] # a list of reference objects
         self.authors = []
+        self.affiliates = []
         self.abstract = ''
         self.date = ''
         self.publisher = ''

@@ -6,7 +6,6 @@ from CrossReference import modify_name
 # 2.) Reference Authors
 # 3.) Conference/Journal Published
 # 4.) Year it was published
-# XML file taken from GROBID API Call
 # XML files must be in the same place as this python file
 # Output info is temporarily placed in txt file, later will be added to a database
 
@@ -18,7 +17,7 @@ class Reference:
         self.key = modify_name(title)
         self.authors = []
         self.publisher = Publisher()
-        self.timesCited = 0
+        self.timesCited = 1
 
 
 class Publisher:

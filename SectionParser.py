@@ -69,12 +69,12 @@ def parseSectionTitle(root, device):
                                         cite_occurrence[ref_number] = 1;
                                         print(str(ref_number) + " cited: one time")
                                     else:
-                                        val = cite_occurrence[ref_number]
+                                        val = cite_occurrence[ref_number]cd 
                                         val += 1
                                         cite_occurrence[ref_number] = val
                                         print(str(ref_number) + " cited: %s times" % str(val))
 
-                                    #TODO: fix duplicate code here
+                                    # TODO: fix duplicate code here
                             else:
                                 if ref.text is not None:
                                     ref_regex = re.findall(r'\d+', ref.text)
@@ -89,8 +89,6 @@ def parseSectionTitle(root, device):
                                             val += 1
                                             cite_occurrence[ref_number] = val
                                             print(str(ref_number) + " cited: %s times" % str(val))
-
-
 
                             # TODO: come up with a way to improve the reference counting
 

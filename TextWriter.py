@@ -1,9 +1,11 @@
 import os
-
+import csv
 
 def writeFiles(devices, connections):
 
     write_connections(connections)
+    write_cite_dist(devices, connections)
+    write_PDF_tracker(devices)
 
     for device in devices:
         device = devices[device]
@@ -16,6 +18,12 @@ def writeFiles(devices, connections):
         write_forward_refs(device, devices)
 
         os.chdir('..')
+
+
+def write_PDF_tracker(devices):
+    with open("PDF_Names_and_Titles.txt", 'w+', encoding='utf8') as file:
+        for device in devices:
+            file.write('Data from %s is in %s\n' % (devices[device].pdf, devices[device].name))
 
 
 def write_connections(connections):
@@ -39,6 +47,13 @@ def write_metadata(device):
                 file.write(author + '\n')
         else:
             file.write("No Authors Extracted")
+
+    with open("Affiliations.txt", 'w+', encoding='utf8') as file:
+        if device.affiliates is not []:
+            for affiliate in device.affiliates:
+                file.write('Laboratory: %s\n' % affiliate.lab)
+                file.write('Department: %s\n' % affiliate.dept)
+                file.write('Institution: %s\n\n' % affiliate.institute)
 
     with open("Publisher.txt", 'w+', encoding='utf8') as file:
         if device.publisher != '':
@@ -109,9 +124,34 @@ def write_references(device):
     os.chdir('..')
 
 
+def write_cite_dist(devices, connections):
+    dist = {}
+    # for connection in connections:
+    #     key = connection.times_cited
+    #     if key in dist:
+    #         dist[key] = dist[key] + 1
+    #     else:
+    #         dist[key] = 1
+    for device in devices:
+        for citation in devices[device].backward_ref:
+            key = citation.timesCited
+            if key == 5 or key == 6:
+                print(device + ' cited ' + citation.title)
+            if key in dist:
+                dist[key] = dist[key] + 1
+            else:
+                dist[key] = 1
+
+    with open('Distribution.csv', 'w+', newline='') as file:
+        fieldnames = ['times_cited', 'occurance']
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        for key in sorted(dist):
+            writer.writerow({'times_cited': key, 'occurance': dist[key]})
+
+
 def write_forward_refs(device, devices):
     with open("Papers That Cited This Paper.txt", 'w+', encoding='utf8') as file:
-        file.write("Data from this PDF: " + device.pdf)
         for ref in device.forward_ref:
             forward_ref = devices[ref]
             file.write(forward_ref.title + "AND CITED " + str(forward_ref.timesCited) + " TIMES" + '\n')

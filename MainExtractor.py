@@ -27,30 +27,30 @@ Before Running script:
 
 
 def main():
-    start = time.time()
-    extract_figures(input_dir, output_dir)
-    finish = time.time()
-    print("Extracted Figures in " + str(finish - start) + "seconds")
+    # start = time.time()
+    # extract_figures(input_dir, output_dir)
+    # finish = time.time()
+    # print("Extracted Figures in " + str(finish - start) + "seconds")
 
-    start = time.time()
-    data_extractor()
-    finish = time.time()
-    print("Extracted Data in " + str(finish - start) + " seconds")
+    # start = time.time()
+    # data_extractor()
+    # finish = time.time()
+    # print("Extracted Data in " + str(finish - start) + " seconds")
 
     start = time.time()
     parse_output_files()
     finish = time.time()
     print("Parsed Files in " + str(finish - start) + " seconds")
 
-    clean_output_folder()
+    # clean_output_folder()
 
 
 def parse_output_files():
     os.chdir(output_dir)
 
     count = 1
+    number_files = str(len(glob.glob('*.xml')))
     for file in glob.glob('*.xml'):
-        number_files = str(len(glob.glob('*.xml')))
         XMLfile_path = file
         pdf_name = XMLfile_path[:-4]
         JSONfile_path = output_dir + pdf_name + '.json'
