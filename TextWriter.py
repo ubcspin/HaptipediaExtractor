@@ -1,23 +1,24 @@
 import os
 import csv
 
+
 def writeFiles(devices, connections):
 
     write_connections(connections)
     write_cite_dist(devices, connections)
     write_PDF_tracker(devices)
 
-    for device in devices:
-        device = devices[device]
-        os.chdir(device.name)
-
-        write_metadata(device)
-        write_sections(device)
-        write_figures(device)
-        write_references(device)
-        write_forward_refs(device, devices)
-
-        os.chdir('..')
+    # for device in devices:
+    #     device = devices[device]
+    #     os.chdir(device.name)
+    #
+    #     write_metadata(device)
+    #     write_sections(device)
+    #     write_figures(device)
+    #     write_references(device)
+    #     write_forward_refs(device, devices)
+    #
+    #     os.chdir('..')
 
 
 def write_PDF_tracker(devices):
@@ -29,7 +30,7 @@ def write_PDF_tracker(devices):
 def write_connections(connections):
     with open("Cross References.txt", 'w+', encoding='utf8') as file:
         for connection in connections:
-            file.write ('%s referenced %s (Cited %s times)\n' % (connection.name, connection.cited, connection.times_cited))
+            file.write ('%s referenced %s (Cited %s times)\n' % (connection.name, connection.connected_device, connection.times_cited))
             file.write('Shared Authors:\n')
             if connection.shared_authors != []:
                 for author in connection.shared_authors:
@@ -120,27 +121,36 @@ def write_references(device):
             file.write('Volume: ' + publisher.volume + '\n')
             file.write('Issue: ' + publisher.date + '\n')
             file.write('Times Cited: ' + str(citation.timesCited) + '\n')
+            file.write('Location in Text Cited:\n')
+            for location in citation.locations_cited:
+                file.write(location + '\n')
 
     os.chdir('..')
 
 
 def write_cite_dist(devices, connections):
     dist = {}
+    number_ref = 0
     # for connection in connections:
     #     key = connection.times_cited
     #     if key in dist:
     #         dist[key] = dist[key] + 1
     #     else:
     #         dist[key] = 1
-    for device in devices:
-        for citation in devices[device].backward_ref:
-            key = citation.timesCited
-            if key == 5 or key == 6:
-                print(device + ' cited ' + citation.title)
-            if key in dist:
-                dist[key] = dist[key] + 1
-            else:
-                dist[key] = 1
+
+    with open('Outliers.txt', 'w+') as file:
+        for device in devices:
+            for citation in devices[device].backward_ref:
+                number_ref += 1
+                key = citation.timesCited
+                if key > 4:
+                    file.write(devices[device].name + ' cited ' + citation.title + ' ' + str(key) + ' times\n')
+                if key in dist:
+                    dist[key] = dist[key] + 1
+                else:
+                    dist[key] = 1
+
+    print(str(number_ref))
 
     with open('Distribution.csv', 'w+', newline='') as file:
         fieldnames = ['times_cited', 'occurance']

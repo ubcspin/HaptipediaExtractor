@@ -1,4 +1,5 @@
 from CrossReference import modify_name
+import re
 
 # Parser to extract References from an XML file
 # References include:
@@ -18,6 +19,7 @@ class Reference:
         self.authors = []
         self.publisher = Publisher()
         self.timesCited = 1
+        self.locations_cited = []
 
 
 class Publisher:
@@ -29,10 +31,9 @@ class Publisher:
         self.issue = ''
 
 
-def parseReference(XMLroot, device, cite_vals):
+def parseReference(XMLroot, device, cite_vals, citation_placements, unaccounted_citations):
 
     count = 1
-
     ref_root = next(XMLroot.iter("{http://www.tei-c.org/ns/1.0}listBibl"))
 
     for biblStruct in ref_root.iter("{http://www.tei-c.org/ns/1.0}biblStruct"):
@@ -60,15 +61,67 @@ def parseReference(XMLroot, device, cite_vals):
                         writePublishers(title, biblStruct, reference)
                         if count in cite_vals:
                             reference.timesCited = cite_vals[count]
+                            reference.locations_cited = citation_placements[count]
                         device.backward_ref.append(reference)
                     except Exception as e:
                         print(e)
                         print("problem writing publisher")
 
+                    updated_unaccounted_citations = []
+                    for citation in unaccounted_citations:
+                        if check_reference(citation[0], reference):
+                            reference.timesCited += 1
+                            if citation[1] not in reference.locations_cited:
+                                reference.locations_cited.append(citation[1])
+                        else:
+                            # if citation is not connected to this reference, add it into the new list
+                            updated_unaccounted_citations.append(citation)
+
+                    # update the unaccounted citations with all accounted citations removed
+                    unaccounted_citations = updated_unaccounted_citations
+
+
             except Exception as e:
                 print(e)
 
         count += 1
+
+
+def check_reference(citation, reference):
+    ref_year = re.findall(r'\d\d\d\d', reference.publisher.date)
+    cite_year = re.findall(r'\d\d\d\d', citation)
+
+    if cite_year != '' and ref_year != '' and cite_year == ref_year:
+        return check_authors(citation, reference.authors)
+    else:
+        return False
+
+
+def check_authors(citation, authors):
+    author_names = extract_author_names(citation)
+
+    for name in author_names:
+        for author in authors:
+            author_split = author.split(' ')
+            author = author_split[len(author_split) - 1]
+            if name == author:
+                return True
+    return False
+
+
+def extract_author_names(citation_str):
+    delete_table = str.maketrans('1234567890().,', '______________')
+    author_name = citation_str.translate(delete_table)
+    author_name = author_name.replace('_', '')
+    names = author_name.split(' ')
+
+    author_names = []
+    for name in names:
+        if len(name) > 1:
+            if name not in ['et', 'al', 'and']:
+                author_names.append(name)
+
+    return author_names
 
 
 def writePublishers(title, biblStruct, ref_object):

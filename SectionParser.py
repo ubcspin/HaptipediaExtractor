@@ -21,6 +21,7 @@ def parseSection(XMLroot, device):
 
     return cite_vals
 
+
 def parse_abstract(root, device):
 
     abstract = next(root.iter("{http://www.tei-c.org/ns/1.0}abstract"))
@@ -39,6 +40,8 @@ def parseSectionTitle(root, device):
     body = next(root.iter("{http://www.tei-c.org/ns/1.0}body"))
 
     cite_occurrence = {}
+    citation_placement = {}
+    citations_not_accounted = []
     for div in body.iter("{http://www.tei-c.org/ns/1.0}div"):
         section = div.find("{http://www.tei-c.org/ns/1.0}head")
 
@@ -57,41 +60,7 @@ def parseSectionTitle(root, device):
             text = paragraph.text
             for ref in paragraph.findall("{http://www.tei-c.org/ns/1.0}ref"):  # extract text after the references
                 if ref is not None:
-                    attributes = ref.attrib
-                    if 'type' in attributes:
-                        if attributes['type'] == 'bibr':
-                            if 'target' in attributes:
-                                ref_number = attributes['target']
-                                if ref_number is not None:
-                                    ref_number = int(ref_number[2:]) + 1
-
-                                    if ref_number not in cite_occurrence:
-                                        cite_occurrence[ref_number] = 1;
-                                        print(str(ref_number) + " cited: one time")
-                                    else:
-                                        val = cite_occurrence[ref_number]cd 
-                                        val += 1
-                                        cite_occurrence[ref_number] = val
-                                        print(str(ref_number) + " cited: %s times" % str(val))
-
-                                    # TODO: fix duplicate code here
-                            else:
-                                if ref.text is not None:
-                                    ref_regex = re.findall(r'\d+', ref.text)
-                                    if len(ref_regex) != 0:
-                                        ref_number = int(ref_regex[0])
-
-                                        if ref_number not in cite_occurrence:
-                                            cite_occurrence[ref_number] = 1;
-                                            print(str(ref_number) + " cited: one time")
-                                        else:
-                                            val = cite_occurrence[ref_number]
-                                            val += 1
-                                            cite_occurrence[ref_number] = val
-                                            print(str(ref_number) + " cited: %s times" % str(val))
-
-                            # TODO: come up with a way to improve the reference counting
-
+                    extract_ref_count(ref, cite_occurrence, citation_placement, citations_not_accounted, section_file)
                     if ref.tail and ref.text is not None:
                         text = text + ref.text + ref.tail
                     elif ref.text is not None:
@@ -101,7 +70,66 @@ def parseSectionTitle(root, device):
 
         device.sections[section_file] = paragraphs
 
-    return cite_occurrence
+    return cite_occurrence, citation_placement, citations_not_accounted
+
+
+def extract_ref_count(ref, cite_occurrence, citation_placement, citations_not_accounted, section_file):
+    attributes = ref.attrib
+    if ref.text is not None:
+        if 'type' in attributes:
+            if attributes['type'] == 'bibr':
+                """
+                    if ref_regex has only one item, then the text is either [/d/d?] or (/d/d?)
+                    if not, then the text in the form (Author Name, \d\d\d\d)
+                """
+                if 'target' in attributes:
+                    bibr_number = attributes['target']
+                    if bibr_number is not None:
+                        bibr_number = int(bibr_number[2:])
+                        ref_regex = re.findall(r'\d\d?', ref.text)
+
+                        if len(ref_regex) == 1:
+                            ref_number = compare_ref_numbers(bibr_number, int(ref_regex[0]))
+                        else:
+                            # if our citation in the form of (Author Name, \d\d\d\d), assume the bibr number is correct
+                            ref_number = bibr_number + 1
+                        add_ref_count(ref_number, cite_occurrence, citation_placement, section_file)
+
+                else:
+                    ref_regex = re.findall(r'\d\d?', ref.text)
+                    if len(ref_regex) == 1:
+                        # conditional to stop equation references added to ref-count
+                        if '(' not in ref.text and ')' not in ref.text:
+                            ref_number = int(ref_regex[0])
+                            add_ref_count(ref_number, cite_occurrence, citation_placement, section_file)
+                    else:
+                        citations_not_accounted.append((ref.text, section_file))
+
+
+def compare_ref_numbers(bibr_number, text_number):
+    # Correct format: bibr_number + 1 == text_number
+    if (text_number - bibr_number) == 1:
+        return bibr_number + 1
+    else:
+        # if not in the right format, default to the number in the text
+        return text_number
+
+
+def add_ref_count(ref_number, cite_occurrence, citation_locations, section_file):
+    if ref_number not in cite_occurrence:
+        cite_occurrence[ref_number] = 1;
+        citation_locations[ref_number] = [section_file]
+        print(str(ref_number) + " cited: one time")
+
+    else:
+        cite_occurrence[ref_number] += 1
+        if section_file not in citation_locations[ref_number]:
+            citation_locations[ref_number].append(section_file)
+        print(str(ref_number) + " cited: %s times" % str(cite_occurrence[ref_number]))
+
+
+
+
 
 
 

@@ -122,6 +122,9 @@ def data_extractor():
             XMLfile.write(tei_result)
             XMLfile.close()
 
+        else:
+            print("Status Code Not 200 for %s" % file)
+
 
 def extract_figures(input_path, output_path):
 

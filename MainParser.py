@@ -38,8 +38,8 @@ def parse_files(XMLfile_path, JSONfile_path, pdf_name):
 
     parseAuthor(root, device)
     parsePub(root, device)
-    cite_vals = SectionParser.parseSection(root, device)
-    ReferenceParser.parseReference(root, device, cite_vals)
+    cite_vals, citation_placements, unaccounted_citations = SectionParser.parseSection(root, device)
+    ReferenceParser.parseReference(root, device, cite_vals, citation_placements, unaccounted_citations)
     parse_JSON(JSONfile_path, device)
 
     if not os.path.exists(paper_title):
@@ -82,7 +82,6 @@ def fix_same_title(device, paper_title):
         os.makedirs(new_title)
         update_name(new_title, device)
         return new_title
-
 
 
 def parse_JSON(file, device):
