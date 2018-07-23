@@ -11,8 +11,8 @@ tol = 0.9
 
 
 class Connection:
-    def __init__(self, name, connected_device):
-        self.name = name
+    def __init__(self, device, connected_device):
+        self.device = device
         self.connected_device = connected_device
         self.is_cited = False
         self.times_cited = ''
@@ -52,9 +52,10 @@ def in_visited(device, comp_device):
         return True
     else:
         visited_connections.append((device.name, comp_device.name))
+        return False
 
 
-def find_shared_connections(device, comp_device):
+def find_shared_metadata(device, comp_device):
     shared_authors = check_authors(device, comp_device)
     shared_references = check_refs(device, comp_device)
 
@@ -100,29 +101,29 @@ def check_refs(device1, device2):
 def check_connection(device, comp_device):
 
     is_cited, times_cited = check_crossref(device, comp_device)
-    shared_authors, shared_refs = find_shared_connections(device, comp_device)
+    shared_authors, shared_refs = find_shared_metadata(device, comp_device)
 
     if is_cited:
         if not in_visited(device, comp_device):
-            connection = create_connection(device.name, comp_device.name, is_cited, times_cited, shared_authors, shared_refs)
+            connection = create_connection(device, comp_device, is_cited, times_cited, shared_authors, shared_refs)
             return connection
         else:
-            visited_connection = [x for x in connections if x.name == comp_device.name and x.connected_device == device.name]
+            visited_connection = [x for x in connections if x.device.name == comp_device.name and x.connected_device.name == device.name]
             for connection in visited_connection:
                 connections.remove(connection)
-                new_connection = create_connection(device.name, comp_device.name, is_cited, times_cited, shared_authors, shared_refs)
+                new_connection = create_connection(device, comp_device, is_cited, times_cited, shared_authors, shared_refs)
                 return new_connection
 
 
     else:
         if not in_visited(device, comp_device):
             if shared_authors != [] or shared_refs != []:
-                connection = create_connection(device.name, comp_device.name, is_cited, times_cited, shared_authors, shared_refs)
+                connection = create_connection(device, comp_device, is_cited, times_cited, shared_authors, shared_refs)
                 return connection
 
 
-def create_connection(name, con_device, is_cited, times_cited, shared_authors, shared_refs):
-    connection = Connection(name, con_device)
+def create_connection(device, comp_device, is_cited, times_cited, shared_authors, shared_refs):
+    connection = Connection(device, comp_device)
     connection.is_cited = is_cited
     connection.times_cited = times_cited
     connection.shared_authors = shared_authors
@@ -138,14 +139,6 @@ def check_crossref(device, comp_device):
             return True, ref.timesCited
 
     return False, 0
-
-
-# def within_tol(devices, ref):
-#     for device in devices:
-#         tol = calculate_tol(device, modify_name(ref.title))
-#         if tol > 0.75:
-#             return True, device
-#     return False, None
 
 
 def calculate_tol(device, ref):
@@ -187,12 +180,3 @@ def calculate_tol(device, ref):
         print("Comparing %s AND %s. Their tol is %f" % (device, ref, score))
         print("Dif-Count is %d" % dif_count)
     return score
-
-
-def build_geneology(devices):
-    # dict where the device name is the key and the list of other devices is the value
-    # initialize the edge-list
-    for device in devices:
-        device = devices[device]
-        if len(device.forward_ref) != 0:
-            edges[modify_name(device.name)] = device.forward_ref

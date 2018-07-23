@@ -8,7 +8,6 @@ from Device import get_devices
 from ConfigPaths import input_dir, output_dir, pdffigures2_dir, writeToFile
 from MainParser import parse_files
 from TextWriter import writeFiles
-from AddToDatabase import add_data
 
 devices = {}
 times_taken = []
@@ -27,15 +26,15 @@ Before Running script:
 
 
 def main():
-    # start = time.time()
-    # extract_figures(input_dir, output_dir)
-    # finish = time.time()
-    # print("Extracted Figures in " + str(finish - start) + "seconds")
+    start = time.time()
+    extract_figures(input_dir, output_dir)
+    finish = time.time()
+    print("Extracted Figures in " + str(finish - start) + "seconds")
 
-    # start = time.time()
-    # data_extractor()
-    # finish = time.time()
-    # print("Extracted Data in " + str(finish - start) + " seconds")
+    start = time.time()
+    data_extractor()
+    finish = time.time()
+    print("Extracted Data in " + str(finish - start) + " seconds")
 
     start = time.time()
     parse_output_files()
