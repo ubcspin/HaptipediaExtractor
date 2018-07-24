@@ -7,14 +7,14 @@ from MetaDataParser import parseAuthor, parsePub
 from Device import init_device, update_name
 
 
-# MainParser that can be called from the commandline
-# REQUIRES XML files to be inside a specific folder
-# must be in the same directory as the XML files or must be called from main and main puts it in the right directory
-
 forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 
+"""
+Calls the different parsers to extract information from XML and JSON files. Creates a folder to hold the figures
+and the figure captions
+"""
 
-def parse_files(XMLfile_path, JSONfile_path, pdf_name):
+def parse_file(XMLfile_path, JSONfile_path, pdf_name):
 
     tree = ET.parse(XMLfile_path)
     root = tree.getroot()
@@ -50,10 +50,17 @@ def parse_files(XMLfile_path, JSONfile_path, pdf_name):
     os.chdir(paper_title)
     if not os.path.exists('Figures'):
         os.makedirs('Figures')
+        #TODO: write figurecaptions into this folder
     os.chdir('..')
 
     return paper_title
 
+
+"""
+Method in case if two papers titles were extracted incorrectly and are the same,
+changes the name by first checking the year of the paper, if not available,
+then rename the paper with paper(1)
+"""
 
 def fix_same_title(device, paper_title):
     if device.date is not '':

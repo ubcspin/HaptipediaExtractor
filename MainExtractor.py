@@ -5,8 +5,8 @@ import requests
 import subprocess
 from CrossReference import initialize_connections
 from Device import get_devices
-from ConfigPaths import input_dir, output_dir, pdffigures2_dir, writeToFile
-from MainParser import parse_files
+from ConfigPaths import input_dir, output_dir, pdffigures2_dir, should_init_crossrefs, writeToFile
+from MainParser import parse_file
 from TextWriter import writeFiles
 
 devices = {}
@@ -20,8 +20,9 @@ main_dir = os.getcwd()
 
 
 '''
-Before Running script:
+Before running main():
 1) make sure to have grobid running in the background, see github.com/grobid
+2) have ConfigPaths.py set-up for the input and output directory
 '''
 
 
@@ -41,8 +42,14 @@ def main():
     finish = time.time()
     print("Parsed Files in " + str(finish - start) + " seconds")
 
-    # clean_output_folder()
+    clean_output_folder()
 
+
+"""
+For each XML File and JSON File, passes it to the MainParser module to extract data from both files
+After finished parsing, place specific images into their folder, initialize connections between papers
+and place in database(to be done on a later date)
+"""
 
 def parse_output_files():
     os.chdir(output_dir)
@@ -55,7 +62,7 @@ def parse_output_files():
         JSONfile_path = output_dir + pdf_name + '.json'
         print("XML: " + XMLfile_path)
         print("JSON: " + JSONfile_path)
-        folder_name = parse_files(XMLfile_path, JSONfile_path, pdf_name)
+        folder_name = parse_file(XMLfile_path, JSONfile_path, pdf_name)
         print("Parsed file " + str(count) + " out of " + number_files)
         if folder_name is not None:
             if type(folder_name) is bytes:
@@ -66,10 +73,12 @@ def parse_output_files():
         count += 1
 
     devices = get_devices()
-    # add_data(devices) still need to design the schema for the database
-    connections = initialize_connections(devices)
-    writeFiles(devices, connections)
-
+    # still need to design database schema
+    # add_data(devices)
+    if should_init_crossrefs:
+        connections = initialize_connections(devices)
+    if writeToFile:
+        writeFiles(devices, connections)
 
 
 def clean_output_folder():
@@ -92,6 +101,10 @@ def organize_images(pdf_name, folder_name):
         os.rename(pdf, dest)
 
 
+"""
+API call to GROBID to extract text, references and metadata. All extracted data written into an XML file.
+If status code != 200, skips PDF since GROBID couldn't extract data.
+"""
 def data_extractor():
     os.chdir(input_dir)
 
@@ -124,6 +137,11 @@ def data_extractor():
         else:
             print("Status Code Not 200 for %s" % file)
 
+
+"""
+Call to PDFFigures2.0 Batch Mode to extract all figures and figure captions from all papers
+TODO: place all images into an image folder and sort them later
+"""
 
 def extract_figures(input_path, output_path):
 

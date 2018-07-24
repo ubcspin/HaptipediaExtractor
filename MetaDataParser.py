@@ -4,6 +4,12 @@ class Affiliate:
         self.dept = ''
         self.lab = ''
 
+
+"""
+Parser to find a papers authors
+root: XMLroot to parse
+device: device to add author to
+"""
 def parseAuthor(root, device):
 
     sourceDesc = next(root.iter("{http://www.tei-c.org/ns/1.0}sourceDesc"))
@@ -36,7 +42,11 @@ def parseAuthor(root, device):
                     device.authors.append(name)
 
 
+"""
+Parser for affiliation of an author
+Input:
 
+"""
 def find_affiliations(src):
     affiliates = []
     affiliates_elem = src.iter("{http://www.tei-c.org/ns/1.0}affiliation") # gives a list of affiliates
@@ -47,7 +57,8 @@ def find_affiliations(src):
             if num not in seen_affiliates:
                 seen_affiliates.append(num)
                 orgs = affiliate.findall('{http://www.tei-c.org/ns/1.0}orgName')
-                dict = {} # dict to keep track of which info belongs with each other
+                # may have multiple affiliations, dict keeps track which groups belong with each other
+                dict = {}
                 for org in orgs:
                     type = org.get('type')
                     if 'key' in org.attrib:
@@ -77,7 +88,9 @@ def find_affiliations(src):
 
     return affiliates
 
-
+"""
+Parser for a papers publication
+"""
 def parsePub(root, device):
 
     publicationStmt = next(root.iter("{http://www.tei-c.org/ns/1.0}publicationStmt"))

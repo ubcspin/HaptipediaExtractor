@@ -8,17 +8,17 @@ def writeFiles(devices, connections):
     write_cite_dist(devices, connections)
     write_PDF_tracker(devices)
 
-    # for device in devices:
-    #     device = devices[device]
-    #     os.chdir(device.name)
-    #
-    #     write_metadata(device)
-    #     write_sections(device)
-    #     write_figures(device)
-    #     write_references(device)
-    #     write_forward_refs(device, devices)
-    #
-    #     os.chdir('..')
+    for device in devices:
+        device = devices[device]
+        os.chdir(device.name)
+
+        write_metadata(device)
+        write_sections(device)
+        write_figures(device)
+        write_references(device)
+        write_forward_refs(device, devices)
+
+        os.chdir('..')
 
 
 def write_PDF_tracker(devices):
@@ -30,14 +30,18 @@ def write_PDF_tracker(devices):
 def write_connections(connections):
     with open("Cross References.txt", 'w+', encoding='utf8') as file:
         for connection in connections:
-            file.write ('%s referenced %s (Cited %s times)\n' % (connection.name, connection.connected_device, connection.times_cited))
+            conn = connections[connection]
+            if conn.is_cited:
+                file.write ('%s referenced %s (Cited %s times)\n' % (conn.device.name, conn.connected_device.name, conn.times_cited))
+            else:
+                file.write('%s connected to %s\n' %(conn.device.name, conn.conn_device.name))
             file.write('Shared Authors:\n')
-            if connection.shared_authors != []:
-                for author in connection.shared_authors:
+            if conn.shared_authors != []:
+                for author in conn.shared_authors:
                     file.write(author + '\n')
             file.write('Shared References:\n')
-            if connection.shared_refs != []:
-                for ref in connection.shared_refs:
+            if conn.shared_refs != []:
+                for ref in conn.shared_refs:
                     file.write(ref.title + '\n')
 
 
