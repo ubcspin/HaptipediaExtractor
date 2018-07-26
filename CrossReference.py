@@ -1,4 +1,3 @@
-import psycopg2
 
 """
 Use a dictionary for visited connections to reduce runtime in lookup
@@ -9,8 +8,6 @@ visited_connections = {}
 
 edges = {}
 connections = {}
-data = {}
-tol = 0.9
 
 
 class Connection:
@@ -30,7 +27,7 @@ class Connection:
 def modify_name(title):
     if type(title) is not str:
         title = title.decode("ascii")
-    allowed_char = set('abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+    allowed_char = set('abcdefghijklmnopqrstuvwxyz\/- ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789   ')
     title = ''.join(filter(allowed_char.__contains__, title))
     title = title.lower()
     return title
@@ -43,9 +40,7 @@ def initialize_connections(devices):
                 # use the values instead of keys
                 comp_device = devices[comparison_device]
                 main_device = devices[device]
-                connection = check_connection(main_device, comp_device)
-                if connection is not None:
-                    connections[connection.key] = connection
+                check_connection(main_device, comp_device)
 
     return connections
 
@@ -58,7 +53,7 @@ def in_visited(device, comp_device):
     if test_key1 in visited_connections or test_key2 in visited_connections:
         return True
     else:
-        visited_connections[test_key1] = (device, comp_device)
+        # visited_connections[test_key1] = (device, comp_device)
         return False
 
 
@@ -98,8 +93,8 @@ def check_refs(device1, device2):
     shared_refs = []
     for ref1 in device1.backward_ref:
         for ref2 in device2.backward_ref:
-            tol = calculate_tol(modify_name(ref1.title), modify_name(ref2.title))
-            if tol > 0.85:
+            tol = calculate_tol(ref1.key, ref2.key)
+            if tol > 0.75:
                 shared_refs.append(ref1)
 
     return shared_refs
@@ -108,23 +103,40 @@ def check_refs(device1, device2):
 def check_connection(device, comp_device):
 
     is_cited, times_cited = check_crossref(device, comp_device)
+    connection_seen = in_visited(device, comp_device)
 
-    if is_cited:
-        if not in_visited(device, comp_device):
-            shared_authors, shared_refs = find_shared_metadata(device, comp_device)
-            connection = create_connection(device, comp_device, is_cited, times_cited, shared_authors, shared_refs)
-            return connection
-        else:
-            shared_authors, shared_refs = find_shared_metadata(device, comp_device)
-            new_connection = create_connection(device, comp_device, is_cited, times_cited, shared_authors, shared_refs)
-            return new_connection
+    if connection_seen and is_cited:
+        update_connection(device, comp_device, is_cited, times_cited)
 
     else:
-        if not in_visited(device, comp_device):
+        if not connection_seen:
+            key = device.name + comp_device.name
+            visited_connections[key] = (device, comp_device)
             shared_authors, shared_refs = find_shared_metadata(device, comp_device)
-            if shared_authors != [] or shared_refs != []:
+            if shared_authors != [] or shared_refs != [] or is_cited:
                 connection = create_connection(device, comp_device, is_cited, times_cited, shared_authors, shared_refs)
-                return connection
+                connections[connection.key] = connection
+
+
+def update_connection(device, comp_device, is_cited, times_cited):
+    key_to_update = device.name + comp_device.name
+    key_to_delete = comp_device.name + device.name
+
+    shared_authors = []
+    shared_refs = []
+
+    if key_to_delete in connections:
+        shared_authors = connections[key_to_delete].shared_authors
+        shared_refs = connections[key_to_delete].shared_refs
+        del connections[key_to_delete]
+
+    if key_to_update in connections:
+        old_connection = connections[key_to_update]
+        old_connection.is_cited = is_cited
+        old_connection.times_cited = times_cited
+    else:
+        connection = create_connection(device, comp_device, is_cited, times_cited, shared_authors, shared_refs)
+        connections[connection.key] = connection
 
 
 def create_connection(device, comp_device, is_cited, times_cited, shared_authors, shared_refs):
@@ -134,7 +146,7 @@ def create_connection(device, comp_device, is_cited, times_cited, shared_authors
     connection.shared_authors = shared_authors
     connection.shared_refs = shared_refs
 
-    print('Connection created between %s and %s' %(device.name, comp_device.name))
+    # print('Connection created between %s and %s' %(device.name, comp_device.name))
     return connection
 
 
@@ -186,3 +198,23 @@ def calculate_tol(device, ref):
     #     print("Comparing %s AND %s. Their tol is %f" % (device, ref, score))
     #     print("Dif-Count is %d" % dif_count)
     return score
+
+
+def update_cross_ref(new_name, devices):
+    forward_refs = []
+    # device is a tuple (device, list of its reference titles)
+    for device in devices:
+        for ref in device[1]:
+            score = calculate_tol(new_name, ref)
+            if score > 0.75:
+                # connection = Connection(device, new_name)
+                # connection.is_cited = True
+                print("New Connection Found: %s cited %s" % (device[0], new_name))
+                forward_refs.append(device[0])
+
+    return forward_refs
+
+
+
+
+
