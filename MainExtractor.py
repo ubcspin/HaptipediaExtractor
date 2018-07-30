@@ -58,6 +58,7 @@ After finished parsing, place specific images into their folder, initialize conn
 and place in database(to be done on a later date)
 """
 
+
 def parse_output_files():
     os.chdir(output_dir)
 
@@ -84,8 +85,8 @@ def parse_output_files():
     connections = {}
     if config.should_init_crossrefs:
         connections = initialize_connections(devices)
-    if config.add_to_db:
-        add_data(devices, connections)
+    # if config.add_to_db:
+    #     add_data(devices, connections)
     if config.writeToFile:
         writeFiles(devices, connections)
 
