@@ -63,7 +63,7 @@ def parseReference(XMLroot, device, cite_vals, citation_placements, unaccounted_
                             reference.timesCited = cite_vals[count]
                             reference.locations_cited = citation_placements[count]
                         device.backward_ref.append(reference)
-                        device.backward_ref_titles.append(reference.title)
+                        device.refs.append(reference.title)
                     except Exception as e:
                         print(e)
                         print("problem writing publisher")
@@ -80,7 +80,6 @@ def parseReference(XMLroot, device, cite_vals, citation_placements, unaccounted_
 
                     # update the unaccounted citations with all accounted citations removed
                     unaccounted_citations = updated_unaccounted_citations
-
 
             except Exception as e:
                 print(e)
