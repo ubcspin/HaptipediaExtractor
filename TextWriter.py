@@ -5,20 +5,18 @@ import csv
 def writeFiles(devices, connections):
 
     write_connections(connections)
-    write_cite_dist(devices, connections)
+    # write_cite_dist(devices, connections)
     write_PDF_tracker(devices)
 
-    for device in devices:
-        device = devices[device]
-        os.chdir(device.name)
-
-        write_metadata(device)
-        write_sections(device)
-        write_figures(device)
-        write_references(device)
-        write_forward_refs(device, devices)
-
-        os.chdir('..')
+    # for device in devices:
+    #     device = devices[device]
+    #     os.chdir(device.name)
+    #
+    #     write_metadata(device)
+    #     write_sections(device)
+    #     write_references(device)
+    #
+    #     os.chdir('..')
 
 
 def write_PDF_tracker(devices):
@@ -32,9 +30,9 @@ def write_connections(connections):
         for connection in connections:
             conn = connections[connection]
             if conn.is_cited:
-                file.write ('%s referenced %s (Cited %s times)\n' % (conn.device.name, conn.connected_device.name, conn.times_cited))
+                file.write ('\n%s referenced %s (Cited %s times)\n' % (conn.device.name, conn.connected_device.name, conn.times_cited))
             else:
-                file.write('%s connected to %s\n' %(conn.device.name, conn.conn_device.name))
+                file.write('\n%s connected to %s\n' %(conn.device.name, conn.connected_device.name))
             file.write('Shared Authors:\n')
             if conn.shared_authors != []:
                 for author in conn.shared_authors:
@@ -43,6 +41,8 @@ def write_connections(connections):
             if conn.shared_refs != []:
                 for ref in conn.shared_refs:
                     file.write(ref.title + '\n')
+
+    print(len(connections))
 
 
 def write_metadata(device):
@@ -101,7 +101,6 @@ def write_figures(device):
         try:
             with open(figure_number + '.txt', 'w+', encoding='utf8') as file:
                 file.write(figure_caption)
-            # TODO: handle this exception
         except:
             pass
     os.chdir('..')
@@ -132,43 +131,41 @@ def write_references(device):
     os.chdir('..')
 
 
-def write_cite_dist(devices, connections):
-    dist = {}
-    number_ref = 0
-    # for connection in connections:
-    #     key = connection.times_cited
-    #     if key in dist:
-    #         dist[key] = dist[key] + 1
-    #     else:
-    #         dist[key] = 1
-
-    with open('Outliers.txt', 'w+') as file:
-        for device in devices:
-            for citation in devices[device].backward_ref:
-                number_ref += 1
-                key = citation.timesCited
-                if key > 4:
-                    file.write(devices[device].name + ' cited ' + citation.title + ' ' + str(key) + ' times\n')
-                if key in dist:
-                    dist[key] = dist[key] + 1
-                else:
-                    dist[key] = 1
-
-    print(str(number_ref))
-
-    with open('Distribution.csv', 'w+', newline='') as file:
-        fieldnames = ['times_cited', 'occurance']
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        for key in sorted(dist):
-            writer.writerow({'times_cited': key, 'occurance': dist[key]})
+# def write_cite_dist(devices, connections):
+#     dist = {}
+#     number_ref = 0
+#     # for connection in connections:
+#     #     key = connection.times_cited
+#     #     if key in dist:
+#     #         dist[key] = dist[key] + 1
+#     #     else:
+#     #         dist[key] = 1
+#
+#     with open('Outliers.txt', 'w+') as file:
+#         for device in devices:
+#             for citation in devices[device].backward_ref:
+#                 number_ref += 1
+#                 key = citation.timesCited
+#                 if key > 4:
+#                     file.write(devices[device].name + ' cited ' + citation.title + ' ' + str(key) + ' times\n')
+#                 if key in dist:
+#                     dist[key] = dist[key] + 1
+#                 else:
+#                     dist[key] = 1
+#
+#     with open('Distribution.csv', 'w+', newline='') as file:
+#         fieldnames = ['times_cited', 'occurance']
+#         writer = csv.DictWriter(file, fieldnames=fieldnames)
+#         writer.writeheader()
+#         for key in sorted(dist):
+#             writer.writerow({'times_cited': key, 'occurance': dist[key]})
 
 
-def write_forward_refs(device, devices):
-    with open("Papers That Cited This Paper.txt", 'w+', encoding='utf8') as file:
-        for ref in device.forward_ref:
-            forward_ref = devices[ref]
-            file.write(forward_ref.title + "AND CITED " + str(forward_ref.timesCited) + " TIMES" + '\n')
+# def write_forward_refs(device, devices):
+#     with open("Papers That Cited This Paper.txt", 'w+', encoding='utf8') as file:
+#         for ref in device.forward_ref:
+#             forward_ref = devices[ref]
+#             file.write(forward_ref.title + "AND CITED " + str(forward_ref.timesCited) + " TIMES" + '\n')
 
 
 

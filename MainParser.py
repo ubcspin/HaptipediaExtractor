@@ -1,6 +1,5 @@
 import os
 import xml.etree.ElementTree as ET
-import json
 import SectionParser
 import ReferenceParser
 from MetaDataParser import parseAuthor, parsePub
@@ -40,7 +39,6 @@ def parse_file(XMLfile_path, JSONfile_path, pdf_name):
     parsePub(root, device)
     cite_vals, citation_placements, unaccounted_citations = SectionParser.parseSection(root, device)
     ReferenceParser.parseReference(root, device, cite_vals, citation_placements, unaccounted_citations)
-    parse_JSON(JSONfile_path, device)
 
     if not os.path.exists(paper_title):
         os.makedirs(paper_title)
@@ -50,7 +48,6 @@ def parse_file(XMLfile_path, JSONfile_path, pdf_name):
     os.chdir(paper_title)
     if not os.path.exists('Figures'):
         os.makedirs('Figures')
-        #TODO: write figurecaptions into this folder
     os.chdir('..')
 
     return paper_title
@@ -61,6 +58,7 @@ Method in case if two papers titles were extracted incorrectly and are the same,
 changes the name by first checking the year of the paper, if not available,
 then rename the paper with paper(1)
 """
+
 
 def fix_same_title(device, paper_title):
     if device.date is not '':
@@ -91,27 +89,7 @@ def fix_same_title(device, paper_title):
         return new_title
 
 
-def parse_JSON(file, device):
 
-    try:
-        with open(file, 'r') as json_file:
-            data = json.load(json_file)
-
-            for x in range(len(data)):
-                caption = data[x]["caption"]
-                figType = data[x]["figType"]
-                number = data[x]['name']
-
-                figure_number = number
-
-                if figType == 'Figure':
-                    figure_number = "Figure" + number
-                elif figType == 'Table':
-                    figure_number = 'Table' + number
-
-                device.figures[figure_number] = caption
-    except:
-        print("No JSON found for " + file)
 
 
 

@@ -3,11 +3,14 @@ import glob
 import time
 import requests
 import subprocess
+import json
+import ConfigPaths as config
 from CrossReference import initialize_connections
 from Device import get_devices
-from ConfigPaths import input_dir, output_dir, pdffigures2_dir, should_init_crossrefs, writeToFile
 from MainParser import parse_file
 from TextWriter import writeFiles
+from DatabaseConnection import add_data
+
 
 devices = {}
 times_taken = []
@@ -17,6 +20,10 @@ start_time = time.time()
 trans_table = str.maketrans(' ', '_')
 
 main_dir = os.getcwd()
+
+input_dir = config.input_dir
+output_dir = config.output_dir
+pdffigures2_dir = config.pdffigures2_dir
 
 
 '''
@@ -74,10 +81,12 @@ def parse_output_files():
 
     devices = get_devices()
     # still need to design database schema
-    # add_data(devices)
-    if should_init_crossrefs:
+    connections = {}
+    if config.should_init_crossrefs:
         connections = initialize_connections(devices)
-    if writeToFile:
+    if config.add_to_db:
+        add_data(devices, connections)
+    if config.writeToFile:
         writeFiles(devices, connections)
 
 
@@ -95,10 +104,36 @@ def organize_images(pdf_name, folder_name):
 
     pdfs = glob.glob(pdf_name + '-Figure' + "*" +".png") + glob.glob(pdf_name + '-Table' + "*" +".png")
 
+    write_fig_captions(pdf_name, folder_name)
+
     for pdf in pdfs:
         new_name = pdf[pdf_length:-6] + '.png'
         dest = folder_name + '/Figures/' + new_name
         os.rename(pdf, dest)
+
+
+def write_fig_captions(pdf_name, folder_name):
+    file = pdf_name + '.json'
+    try:
+        with open(file, 'r') as json_file:
+            data = json.load(json_file)
+
+            for x in range(len(data)):
+                caption = data[x]["caption"]
+                figType = data[x]["figType"]
+                number = data[x]['name']
+
+                figure_number = number
+
+                if figType == 'Figure':
+                    figure_number = "Figure" + number
+                elif figType == 'Table':
+                    figure_number = 'Table' + number
+
+                with open(folder_name + '/Figures/' + figure_number + '.txt', 'w+', encoding='utf8') as fig_text:
+                    fig_text.write(caption)
+    except:
+        print("No JSON found for " + file)
 
 
 """

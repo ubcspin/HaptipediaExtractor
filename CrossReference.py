@@ -53,7 +53,6 @@ def in_visited(device, comp_device):
     if test_key1 in visited_connections or test_key2 in visited_connections:
         return True
     else:
-        # visited_connections[test_key1] = (device, comp_device)
         return False
 
 
@@ -198,21 +197,6 @@ def calculate_tol(device, ref):
     #     print("Comparing %s AND %s. Their tol is %f" % (device, ref, score))
     #     print("Dif-Count is %d" % dif_count)
     return score
-
-
-def update_cross_ref(new_name, devices):
-    forward_refs = []
-    # device is a tuple (device, list of its reference titles)
-    for device in devices:
-        for ref in device[1]:
-            score = calculate_tol(new_name, ref)
-            if score > 0.75:
-                # connection = Connection(device, new_name)
-                # connection.is_cited = True
-                print("New Connection Found: %s cited %s" % (device[0], new_name))
-                forward_refs.append(device[0])
-
-    return forward_refs
 
 
 
