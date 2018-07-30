@@ -110,22 +110,22 @@ def write_references(device):
     if not os.path.exists('References'):
         os.makedirs('References')
     os.chdir('References')
-    for citation in device.backward_ref:
-        with open("[" + str(citation.refNumber) + "].txt", 'w+', encoding='utf8') as file:
-            file.write('Title: ' + citation.title + '\n')
+    for reference in device.backward_ref:
+        with open("[" + str(reference.refNumber) + "].txt", 'w+', encoding='utf8') as file:
+            file.write('Title: ' + reference.title + '\n')
             file.write('Authors:\n')
-            for author in citation.authors:
+            for author in reference.authors:
                 file.write(author + '\n')
-            publisher = citation.publisher
+            publisher = reference.publisher
             if publisher.name is not None:
                 file.write('Publisher: ' + publisher.name + '\n')
             file.write('Date: ' + publisher.date + '\n')
             file.write('Page: ' + publisher.page + '\n')
             file.write('Volume: ' + publisher.volume + '\n')
             file.write('Issue: ' + publisher.date + '\n')
-            file.write('Times Cited: ' + str(citation.timesCited) + '\n')
+            file.write('Times Cited: ' + str(reference.timesCited) + '\n')
             file.write('Location in Text Cited:\n')
-            for location in citation.locations_cited:
+            for location in reference.locations_cited:
                 file.write(location + '\n')
 
     os.chdir('..')

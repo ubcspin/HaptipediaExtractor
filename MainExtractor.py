@@ -9,7 +9,7 @@ from CrossReference import initialize_connections
 from Device import get_devices
 from MainParser import parse_file
 from TextWriter import writeFiles
-from DatabaseConnection import add_data
+# from DatabaseConnection import add_data
 
 
 devices = {}

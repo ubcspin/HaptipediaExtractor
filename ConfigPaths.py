@@ -12,7 +12,7 @@ writeToFile default setting is False
 
 input_dir = r'C:\Users\john_\Desktop\TestPDF\inputs'
 output_dir = r'C:\Users\john_\Desktop\TestPDF\outputs\\'
-pdffigures2_dir = r'C:\Users\john_\Desktop\Projects\Haptipedia\pdffigures2'
+pdffigures2_dir = r'C:\Users\john_\Desktop\Projects\HaptipediaAPI\pdffigures2'
 should_init_crossrefs = True
 add_to_db = True
 writeToFile = True
