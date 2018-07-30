@@ -90,9 +90,9 @@ def check_authors(device1, device2):
 
 def check_refs(device1, device2):
     shared_refs = []
-    for ref1 in device1.backward_ref:
-        for ref2 in device2.backward_ref:
-            tol = calculate_tol(ref1.key, ref2.key)
+    for ref1 in device1.refs:
+        for ref2 in device2.refs:
+            tol = calculate_tol(ref1, ref2)
             if tol > 0.75:
                 shared_refs.append(ref1)
 
@@ -159,6 +159,8 @@ def check_crossref(device, comp_device):
 
 
 def calculate_tol(device, ref):
+    device = modify_name(device)
+    ref = modify_name(ref)
     reflist = ref.split(' ')
     device_str_list = device.split(' ')
 

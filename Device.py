@@ -8,7 +8,7 @@ class Device:
         self.name = name  # also the name of the folder it's in
         self.key = modify_name(name)
         self.backward_ref = [] # a list of reference objects
-        self.backward_ref_titles = [] # a list of reference object titles
+        self.refs = [] # a list of reference object titles
         self.authors = []
         self.affiliates = []
         self.abstract = ''

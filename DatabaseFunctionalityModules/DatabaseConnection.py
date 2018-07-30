@@ -1,5 +1,5 @@
 import psycopg2
-from CrossReference import modify_name, calculate_tol, create_connection
+from CrossReference import modify_name, calculate_tol, create_connection, find_shared_metadata
 
 """
 Database Schema not finalized yet
@@ -55,9 +55,7 @@ def get_conn_values(conn):
     is_cited = conn.is_cited
     times_cited = conn.times_cited
     shared_authors = conn.shared_authors
-    shared_refs = []
-    for ref in conn.shared_refs:
-        shared_refs.append(ref.title)
+    shared_refs = conn.shared_refs
 
     return modify_name(paper_1), paper_1, modify_name(paper_2), paper_2, is_cited, times_cited, shared_authors, shared_refs
 
@@ -77,11 +75,11 @@ def add_devices(new_devices):
         cursor = conn.cursor()
 
         for value in values:
-            try:
-                cursor.execute(command, value)
-            except Exception as e:
-                print(e)
-                pass
+            #try:
+            cursor.execute(command, value)
+            # except Exception as e:
+            #     print(e)
+            #     pass
         cursor.close()
         conn.commit()
     except Exception as e:
@@ -98,7 +96,7 @@ def create_values(devices):
         name = devices[device].name
         authors = devices[device].authors
         date = devices[device].date
-        refs = devices[device].backward_ref_titles
+        refs = devices[device].refs
         publisher = devices[device].publisher
         figures = name + '/Figures/'
         sections = name + '/Sections/Sections.txt'
@@ -120,7 +118,7 @@ def find_new_connections(new_devices):
         for device in devices:
             device = DB_Device(device[0], device[1], device[2])
             if new_device.name != device.name:
-                connection = check_connection(new_device, device)
+                connection = find_connection(new_device, device)
                 if connection is not None:
                     new_connections[connection.key] = connection
 
@@ -149,9 +147,9 @@ def get_devices_from_db():
     return devices
 
 
-def check_connection(new_device, device):
+def find_connection(new_device, device):
 
-    is_cited, times_cited, is_backref = check_crossref(new_device, device)
+    is_cited, times_cited, is_backref = compare_crossrefs(new_device, device)
     shared_authors, shared_refs = find_shared_metadata(new_device, device)
 
     if is_cited or shared_refs != [] or shared_authors != []:
@@ -164,7 +162,7 @@ def check_connection(new_device, device):
 
 
 # checks if new_device cites device
-def check_crossref(new_device, device):
+def compare_crossrefs(new_device, device):
     for ref in new_device.backward_ref:
         score = calculate_tol(ref.key, device.key)
         if score > 0.75:
@@ -176,49 +174,6 @@ def check_crossref(new_device, device):
             return True, 1, False
 
     return False, 0, False
-
-
-def find_shared_metadata(device, comp_device):
-    shared_authors = check_authors(device, comp_device)
-    shared_references = check_refs(device, comp_device)
-
-    return shared_authors, shared_references
-
-
-def check_authors(device1, device2):
-    shared_authors = []
-    for author1 in device1.authors:
-        author1_split = author1.split(' ')
-        for author2 in device2.authors:
-            author2_split = author2.split(' ')
-            lastname_idx1 = len(author1_split) - 1
-            lastname_idx2 = len(author2_split) - 1
-            same_firstname = True
-            if len(author1_split) > 1 and len(author2_split) > 1:
-                firstname1 = author1_split[0]
-                firstname2 = author2_split[0]
-                if firstname1 == firstname2:
-                    same_firstname = True
-                elif firstname1[0] == firstname2[0]:
-                    same_firstname = True
-                else:
-                    same_firstname = False
-            same_lastname = author1_split[lastname_idx1] == author2_split[lastname_idx2]
-            if same_firstname and same_lastname:
-                shared_authors.append(author1)
-
-    return shared_authors
-
-
-def check_refs(device1, device2):
-    shared_refs = []
-    for ref1 in device1.backward_ref:
-        for ref2 in device2.refs:
-            tol = calculate_tol(modify_name(ref1.title), modify_name(ref2))
-            if tol > 0.75:
-                shared_refs.append(ref1)
-
-    return shared_refs
 
 
 
