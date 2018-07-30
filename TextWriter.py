@@ -4,19 +4,19 @@ import csv
 
 def writeFiles(devices, connections):
 
-    write_connections(connections)
+    # write_connections(connections)
     # write_cite_dist(devices, connections)
     write_PDF_tracker(devices)
 
-    # for device in devices:
-    #     device = devices[device]
-    #     os.chdir(device.name)
-    #
-    #     write_metadata(device)
-    #     write_sections(device)
-    #     write_references(device)
-    #
-    #     os.chdir('..')
+    for device in devices:
+        device = devices[device]
+        os.chdir(device.name)
+
+        write_metadata(device)
+        write_sections(device)
+        write_references(device)
+
+        os.chdir('..')
 
 
 def write_PDF_tracker(devices):

@@ -14,4 +14,8 @@ input_dir = r'C:\Users\john_\Desktop\TestPDF\inputs'
 output_dir = r'C:\Users\john_\Desktop\TestPDF\outputs\\'
 pdffigures2_dir = r'C:\Users\john_\Desktop\Projects\Haptipedia\pdffigures2'
 should_init_crossrefs = True
+add_to_database = True
 writeToFile = True
+
+
+
