@@ -1,7 +1,7 @@
-# HaptipediaAPI
-An API for extracting metadata, text, section titles, figures, and references from Haptic Device Research Papers.
+# Haptipedia Extractor
+A python wrapper for extracting metadata, text, section titles, figures, and references from Haptic Device Research Papers.
 Uses PDFFigures2.0 for extraction of figures and figure captions and GROBID for extraction of references, section text and titles.
-Also has a cross-reference function to find connections between given paper inputs (which papers cited each other and how many times, shared authors or references between papers).
+Also has a cross-reference function to find connections between given paper inputs (which papers cited each other and how many times, shared authors and references between papers).
 
 # Usage 
 1. Set appropriate settings and directories for input and output files in ConfigPaths.py
