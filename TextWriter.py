@@ -4,7 +4,7 @@ import csv
 
 def writeFiles(devices, connections):
 
-    # write_connections(connections)
+    write_connections(connections)
     # write_cite_dist(devices, connections)
     write_PDF_tracker(devices)
 
@@ -17,6 +17,12 @@ def writeFiles(devices, connections):
         write_references(device)
 
         os.chdir('..')
+
+
+def write_scores(connections_to_check):
+    with open("Scores_To_Check.txt", 'w+', encoding='utf8') as file:
+        for conn in connections_to_check:
+            file.write(conn + '\n')
 
 
 def write_PDF_tracker(devices):
@@ -40,7 +46,7 @@ def write_connections(connections):
             file.write('Shared References:\n')
             if conn.shared_refs != []:
                 for ref in conn.shared_refs:
-                    file.write(ref.title + '\n')
+                    file.write(ref + '\n')
 
     print(len(connections))
 
@@ -84,7 +90,6 @@ def write_sections(device):
                 file.write('\n' + '\n')
     except:
         pass
-        # TODO: fix error handling
 
     os.chdir('..')
 
@@ -117,16 +122,16 @@ def write_references(device):
             for author in reference.authors:
                 file.write(author + '\n')
             publisher = reference.publisher
-            if publisher.name is not None:
-                file.write('Publisher: ' + publisher.name + '\n')
-            file.write('Date: ' + publisher.date + '\n')
-            file.write('Page: ' + publisher.page + '\n')
-            file.write('Volume: ' + publisher.volume + '\n')
-            file.write('Issue: ' + publisher.date + '\n')
-            file.write('Times Cited: ' + str(reference.timesCited) + '\n')
-            file.write('Location in Text Cited:\n')
-            for location in reference.locations_cited:
-                file.write(location + '\n')
+            if publisher is not None:
+                file.write('Publisher: ' + publisher['name'] + '\n')
+                file.write('Date: ' + publisher['date'] + '\n')
+                file.write('Page: ' + publisher['pages'] + '\n')
+                file.write('Volume: ' + publisher['volume'] + '\n')
+                file.write('Issue: ' + publisher['issue'] + '\n')
+                file.write('Times Cited: ' + str(reference.timesCited) + '\n')
+                file.write('Location in Text Cited:\n')
+                for location in reference.locations_cited:
+                    file.write(location + '\n')
 
     os.chdir('..')
 

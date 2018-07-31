@@ -17,7 +17,7 @@ forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 def parseSection(XMLroot, device):
 
     parse_abstract(XMLroot, device)
-    cite_vals = parseSectionTitle(XMLroot, device)
+    cite_vals = parse_and_find_citation_vals(XMLroot, device)
 
     return cite_vals
 
@@ -34,8 +34,15 @@ def parse_abstract(root, device):
 
     device.sections['Abstract'] = abstract
 
+"""
+Parses through section to extract text and also counts number of times each citation is cited and where it was cited
+Outputs:
+cite_occurance: for each citation, gives the number of times it was cited in the text
+citation_placement: for each citation, give the sections where it was cited
+unaccounted_citations: 
+"""
 
-def parseSectionTitle(root, device):
+def parse_and_find_citation_vals(root, device):
 
     body = next(root.iter("{http://www.tei-c.org/ns/1.0}body"))
 
@@ -103,6 +110,8 @@ def extract_ref_count(ref, cite_occurrence, citation_placement, citations_not_ac
                             ref_number = int(ref_regex[0])
                             add_ref_count(ref_number, cite_occurrence, citation_placement, section_file)
                     else:
+                        # if GROBID can't match reference, add to citations_not_accounted,
+                        # citations_not_accounted is a list of tuples with the ref text and the section it was cited in
                         citations_not_accounted.append((ref.text, section_file))
 
 

@@ -9,11 +9,11 @@ from Device import init_device, update_name
 forbidden_chars_table = str.maketrans('\/*?:"<>|', '_________')
 
 """
-Calls the different parsers to extract information from XML and JSON files. Creates a folder to hold the figures
-and the figure captions
+Calls the different parsers to extract information from XML files. Creates a folder to hold the figures
+and the figure captions.
 """
 
-def parse_file(XMLfile_path, JSONfile_path, pdf_name):
+def parse_file(XMLfile_path, pdf_name):
 
     tree = ET.parse(XMLfile_path)
     root = tree.getroot()
@@ -35,6 +35,7 @@ def parse_file(XMLfile_path, JSONfile_path, pdf_name):
 
     device, device_key = init_device(paper_title, pdf_name)
 
+    # call all the needed parsers to extract data from XML file
     parseAuthor(root, device)
     parsePub(root, device)
     cite_vals, citation_placements, unaccounted_citations = SectionParser.parseSection(root, device)
@@ -56,7 +57,7 @@ def parse_file(XMLfile_path, JSONfile_path, pdf_name):
 """
 Method in case if two papers titles were extracted incorrectly and are the same,
 changes the name by first checking the year of the paper, if not available,
-then rename the paper with paper(1)
+then rename the paper with paper_name(count)
 """
 
 
@@ -87,17 +88,4 @@ def fix_same_title(device, paper_title):
         os.makedirs(new_title)
         update_name(new_title, device)
         return new_title
-
-
-
-
-
-
-
-
-
-
-
-
-
 

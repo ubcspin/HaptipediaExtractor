@@ -17,18 +17,15 @@ class Reference:
         self.title = title
         self.key = modify_name(title)
         self.authors = []
-        self.publisher = Publisher()
+        self.publisher = init_publisher_dict()
         self.timesCited = 1
         self.locations_cited = []
 
 
-class Publisher:
-    def __init__(self):
-        self.name = ''
-        self.date = ''
-        self.page = ''
-        self.volume = ''
-        self.issue = ''
+"""
+Reference Parser that takes citation information from SectionParser to include in ref objects
+
+"""
 
 
 def parseReference(XMLroot, device, cite_vals, citation_placements, unaccounted_citations):
@@ -68,18 +65,8 @@ def parseReference(XMLroot, device, cite_vals, citation_placements, unaccounted_
                         print(e)
                         print("problem writing publisher")
 
-                    updated_unaccounted_citations = []
-                    for citation in unaccounted_citations:
-                        if check_reference(citation[0], reference):
-                            reference.timesCited += 1
-                            if citation[1] not in reference.locations_cited:
-                                reference.locations_cited.append(citation[1])
-                        else:
-                            # if citation is not connected to this reference, add it into the new list
-                            updated_unaccounted_citations.append(citation)
-
                     # update the unaccounted citations with all accounted citations removed
-                    unaccounted_citations = updated_unaccounted_citations
+                    unaccounted_citations = update_unaccounted_citations(unaccounted_citations, reference)
 
             except Exception as e:
                 print(e)
@@ -87,8 +74,34 @@ def parseReference(XMLroot, device, cite_vals, citation_placements, unaccounted_
         count += 1
 
 
+"""
+For each unaccounted_citation, check if they are connected to this reference. If it's not connected to this
+ref, then add it to a new list. The new list will be all the remaining unaccounted_citations, this will get passed to
+the next reference to be checked.
+"""
+
+
+def update_unaccounted_citations(unaccounted_citations, reference):
+    remaining_unaccounted_citations = []
+    for citation in unaccounted_citations:
+        if check_reference(citation[0], reference):
+            reference.timesCited += 1
+            if citation[1] not in reference.locations_cited:
+                reference.locations_cited.append(citation[1])
+        else:
+            # if citation is not connected to this reference, add it into the new list
+            remaining_unaccounted_citations.append(citation)
+
+    return remaining_unaccounted_citations
+
+
+"""
+Compares the reference year and the year on the citation, if they are the same, check their authors
+"""
+
+
 def check_reference(citation, reference):
-    ref_year = re.findall(r'\d\d\d\d', reference.publisher.date)
+    ref_year = re.findall(r'\d\d\d\d', reference.publisher['date'])
     cite_year = re.findall(r'\d\d\d\d', citation)
 
     if cite_year != '' and ref_year != '' and cite_year == ref_year:
@@ -140,14 +153,13 @@ def writePublishers(title, biblStruct, ref_object):
     if publisher is not None:
         publisher_name = publisher.text
         publisher = publisher_title + ", " + publisher_name
-
-    ref_object.publisher.name = publisher
+        ref_object.publisher['name'] = publisher
 
     dateElem = imprint.find("{http://www.tei-c.org/ns/1.0}date")
     if dateElem is not None:
         if dateElem.get('type') == "published":
             date = dateElem.get('when')
-            ref_object.publisher.date = date
+            ref_object.publisher['date'] = date
 
     for biblScope in imprint.findall("{http://www.tei-c.org/ns/1.0}biblScope"):
 
@@ -158,11 +170,11 @@ def writePublishers(title, biblStruct, ref_object):
             if unit == 'page':
                 if biblScope.get('from') and biblScope.get('to') is not None:
                     pages = biblScope.get('from') + " to " + biblScope.get('to')
-                    ref_object.publisher.page = pages
+                    ref_object.publisher['pages'] = pages
             elif unit == 'volume':
-                ref_object.publisher.volume = val
+                ref_object.publisher['volume'] = val
             elif unit == 'issue':
-                ref_object.publisher.issue = val
+                ref_object.publisher['issue'] = val
         except Exception as e:
             print(e)
             pass
@@ -195,5 +207,11 @@ def writeAuthors(ref, ref_object):
 
         except:
             pass
+
+
+def init_publisher_dict():
+    publisher = {'name': '', 'date': '', 'pages': '', 'volume': '', 'issue': ''}
+
+    return publisher
 
 

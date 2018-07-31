@@ -67,10 +67,8 @@ def parse_output_files():
     for file in glob.glob('*.xml'):
         XMLfile_path = file
         pdf_name = XMLfile_path[:-4]
-        JSONfile_path = output_dir + pdf_name + '.json'
         print("XML: " + XMLfile_path)
-        print("JSON: " + JSONfile_path)
-        folder_name = parse_file(XMLfile_path, JSONfile_path, pdf_name)
+        folder_name = parse_file(XMLfile_path, pdf_name)
         print("Parsed file " + str(count) + " out of " + number_files)
         if folder_name is not None:
             if type(folder_name) is bytes:
@@ -81,7 +79,6 @@ def parse_output_files():
         count += 1
 
     devices = get_devices()
-    # still need to design database schema
     connections = {}
     if config.should_init_crossrefs:
         connections = initialize_connections(devices)
@@ -99,18 +96,30 @@ def clean_output_folder():
         os.rename(file, dest)
 
 
+"""
+Moves all images from a PDF to its specific folder
+"""
+
+
 def organize_images(pdf_name, folder_name):
 
     pdf_length = len(pdf_name) + 1 # to take into account the dash at the end and 0-index
 
+    # figures are named by pdf_name-FigureX-01.png
     pdfs = glob.glob(pdf_name + '-Figure' + "*" +".png") + glob.glob(pdf_name + '-Table' + "*" +".png")
 
     write_fig_captions(pdf_name, folder_name)
 
     for pdf in pdfs:
+        # new name of the pdf is now FigureX
         new_name = pdf[pdf_length:-6] + '.png'
         dest = folder_name + '/Figures/' + new_name
         os.rename(pdf, dest)
+
+
+"""
+JSON parser to write figure captions into the same folder as the figures
+"""
 
 
 def write_fig_captions(pdf_name, folder_name):

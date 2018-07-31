@@ -7,15 +7,12 @@ writeToFile default setting is False
 
 'Example:'
 
-# input_dir = r'C:\Users\john_\Desktop\Projects\Haptipedia\inputs'
-# output_dir = r'C:\Users\john_\Desktop\Projects\Haptipedia\outputs\\'
-
 input_dir = r'C:\Users\john_\Desktop\TestPDF\inputs'
 output_dir = r'C:\Users\john_\Desktop\TestPDF\outputs\\'
 pdffigures2_dir = r'C:\Users\john_\Desktop\Projects\HaptipediaAPI\pdffigures2'
-should_init_crossrefs = True
-add_to_db = True
-writeToFile = True
+should_init_crossrefs = False
+add_to_db = False
+writeToFile = False
 
 
 
