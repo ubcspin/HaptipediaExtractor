@@ -232,15 +232,13 @@ def calculate_tol(device, ref):
                     score += 1
                 else:
                     dif_count += 1
-        else:
-            dif_count += 1
 
         i += 1
 
     score = (score - dif_count)/len(lower_bound)
-    if 0.80 > score and score > 0.5:
-        str = "Comparing %s AND %s. Their tol is %f" % (device, ref, score)
-        print(str)
+    # if 0.85 > score and score > 0.5:
+        # str = "Comparing %s AND %s. Their tol is %f" % (device, ref, score)
+        # connections_to_check.append(str)
     return score
 
 
