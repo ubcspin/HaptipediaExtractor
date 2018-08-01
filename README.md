@@ -5,7 +5,7 @@ Also has a cross-reference function to find connections between given paper inpu
 
 # Usage 
 1. Set appropriate settings and directories for input and output files in ConfigPaths.py
-2. Run MainExtractor.py
+2. Change directory to src and run main.py
 
 # Dependencies 
 
