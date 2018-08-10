@@ -59,8 +59,8 @@ def parseReference(XMLroot, device, cite_vals, citation_placements, unaccounted_
                         if count in cite_vals:
                             reference.timesCited = cite_vals[count]
                             reference.locations_cited = citation_placements[count]
-                        device.backward_ref.append(reference)
-                        device.refs.append(reference.title)
+                        device.refs.append(reference)
+                        device.ref_titles.append(reference.title)
                     except Exception as e:
                         print(e)
                         print("problem writing publisher")

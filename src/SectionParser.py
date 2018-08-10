@@ -33,6 +33,7 @@ def parse_abstract(root, device):
         abstract = "No Abstract Extracted"
 
     device.sections['Abstract'] = abstract
+    device.abstract = abstract
 
 """
 Parses through section to extract text and also counts number of times each citation is cited and where it was cited
@@ -74,6 +75,13 @@ def parse_and_find_citation_vals(root, device):
                         text = text + ref.text
 
             paragraphs.append(text)
+
+        if section_file in device.sections:
+            count = 1
+            section_file = section_file + '(1)'
+            while section_file in device.sections:
+                count += 1
+                section_file = section_file[:-3] + '(' + str(count) + ')'
 
         device.sections[section_file] = paragraphs
 

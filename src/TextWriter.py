@@ -2,9 +2,10 @@ import os
 import csv
 
 
-def writeFiles(devices, connections):
+def writeFiles(devices, connections, authors):
 
     write_connections(connections)
+    write_authors(authors)
     # write_cite_dist(devices, connections)
     write_PDF_tracker(devices)
 
@@ -17,6 +18,14 @@ def writeFiles(devices, connections):
         write_references(device)
 
         os.chdir('..')
+
+
+def write_authors(authors):
+    with open("Author List.txt", 'w+', encoding='utf8') as file:
+        for author in authors:
+            file.write(author.name + "\nPublications:\n")
+            for pub in author.publications:
+                file.write(pub + '\n')
 
 
 def write_scores(connections_to_check):
@@ -32,23 +41,24 @@ def write_PDF_tracker(devices):
 
 
 def write_connections(connections):
-    with open("Cross References.txt", 'w+', encoding='utf8') as file:
-        for connection in connections:
-            conn = connections[connection]
-            if conn.is_cited:
-                file.write ('\n%s referenced %s (Cited %s times)\n' % (conn.device.name, conn.connected_device.name, conn.times_cited))
-            else:
-                file.write('\n%s connected to %s\n' %(conn.device.name, conn.connected_device.name))
-            file.write('Shared Authors:\n')
-            if conn.shared_authors != []:
-                for author in conn.shared_authors:
-                    file.write(author + '\n')
-            file.write('Shared References:\n')
-            if conn.shared_refs != []:
-                for ref in conn.shared_refs:
-                    file.write(ref + '\n')
+    if connections is not None:
+        with open("Cross References.txt", 'w+', encoding='utf8') as file:
+            for connection in connections:
+                conn = connections[connection]
+                if conn.is_cited:
+                    file.write ('\n%s referenced %s (Cited %s times)\n' % (conn.device.name, conn.connected_device.name, conn.times_cited))
+                else:
+                    file.write('\n%s connected to %s\n' %(conn.device.name, conn.connected_device.name))
+                file.write('Shared Authors:\n')
+                if conn.shared_authors != []:
+                    for author in conn.shared_authors:
+                        file.write(author + '\n')
+                file.write('Shared References:\n')
+                if conn.shared_refs != []:
+                    for ref in conn.shared_refs:
+                        file.write(ref.title + '\n')
 
-    print(len(connections))
+        print(len(connections))
 
 
 def write_metadata(device):
@@ -115,7 +125,7 @@ def write_references(device):
     if not os.path.exists('References'):
         os.makedirs('References')
     os.chdir('References')
-    for reference in device.backward_ref:
+    for reference in device.refs:
         with open("[" + str(reference.refNumber) + "].txt", 'w+', encoding='utf8') as file:
             file.write('Title: ' + reference.title + '\n')
             file.write('Authors:\n')
