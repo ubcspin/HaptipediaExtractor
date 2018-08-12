@@ -19,20 +19,21 @@ if __name__ == '__main__':
 
     init_start = time.time()
 
-    # print("GROBID extracting text, metadata and references")
-    # try:
-    #     extractor.data_extractor(input_dir, output_dir)
-    # except Exception as e:
-    #     print(e)
-    #     sys.exit("GROBID encountered an error")
-    #
-    # print("PDFFigures2.0 extracting figures and figure captions")
-    # try:
-    #     extractor.extract_figures(input_dir, output_dir, pdffigures2_dir, thread_count)
-    # except Exception as e:
-    #     print(e)
-    #     sys.exit("PDFFigures encountered an error")
-    #
+    print("GROBID extracting text, metadata and references")
+    try:
+        extractor.data_extractor(input_dir, output_dir)
+    except Exception as e:
+        print(e)
+        sys.exit("GROBID encountered an error")
+
+    print("PDFFigures2.0 extracting figures and figure captions")
+
+    try:
+        extractor.extract_figures(input_dir, output_dir, pdffigures2_dir, thread_count)
+    except Exception as e:
+        print(e)
+        sys.exit("PDFFigures encountered an error")
+
     print("Parsing XML and JSON Files")
     try:
         devices = extractor.parse_output_files(output_dir)
