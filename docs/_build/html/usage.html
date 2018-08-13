@@ -1,0 +1,144 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Usage &#8212; Haptipedia 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Extra Things" href="notes.html" />
+    <link rel="prev" title="Installation" href="install.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="different-settings">
+<h2>Different Settings:<a class="headerlink" href="#different-settings" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cross-reference-tool">
+<h3>Cross-Reference Tool<a class="headerlink" href="#cross-reference-tool" title="Permalink to this headline">¶</a></h3>
+<p>Setting to find cross-references and connections between input publications
+* If database tool is also turned on, the program will also compare the input publications with publications already in the database
+* See Connections Page to see what connections are defined</p>
+</div>
+<div class="section" id="add-to-database-tool">
+<h3>Add To Database Tool<a class="headerlink" href="#add-to-database-tool" title="Permalink to this headline">¶</a></h3>
+<p>Setting to add extracted data into the a database
+* Database schema must have tables and columns that are defined in Tables Page</p>
+</div>
+<div class="section" id="write-to-file-tool">
+<h3>Write To File Tool<a class="headerlink" href="#write-to-file-tool" title="Permalink to this headline">¶</a></h3>
+<p>Setting to write all extracted into the same directories that contain figures and figure captions for a publication</p>
+</div>
+</div>
+<div class="section" id="before-running-the-program">
+<h2>Before Running the program<a class="headerlink" href="#before-running-the-program" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li>Make sure GROBID is running in the background somewhere</li>
+<li>Path to PDFFigures2 is written in ConfigPaths.py</li>
+<li>Change AllowOCR = True in PDFFigures2</li>
+<li>Input and Output Directories is written in ConfigPaths.py</li>
+<li>Have all desired settings set to True or False in ConfigPaths.py</li>
+</ol>
+</div>
+<div class="section" id="running-the-program">
+<h2>Running the program<a class="headerlink" href="#running-the-program" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>In the HaptipediaExtractor directory to run, type in the command line</dt>
+<dd><code class="docutils literal notranslate"><span class="pre">run</span> <span class="pre">main.py</span></code></dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Haptipedia</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#different-settings">Different Settings:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#before-running-the-program">Before Running the program</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-program">Running the program</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notes.html">Extra Things</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="install.html" title="previous chapter">Installation</a></li>
+      <li>Next: <a href="notes.html" title="next chapter">Extra Things</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, John Sastrillo.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/usage.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
