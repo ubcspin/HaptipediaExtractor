@@ -5,7 +5,9 @@
 
 Haptipedia Extractor
 ====================
-A python wrapper for extracting metadata, text, section titles, figures, and references from Haptic Device Research Papers. Uses PDFFigures2.0 for extraction of figures and figure captions and GROBID for extraction of references, section text and titles. Also has a cross-reference function to find connections between given paper inputs (which papers cited each other and how many times, shared authors and references between papers).
+A python wrapper for extracting metadata, text, section titles, figures, and references from Haptic Device Research Papers. Uses PDFFigures2.0 for extraction
+of figures and figure captions and GROBID for extraction of references, section text and titles. Also has a cross-reference function to find connections between
+given paper inputs (which papers cited each other and how many times, shared authors and references between papers).
 
 
 .. toctree::
@@ -15,11 +17,3 @@ A python wrapper for extracting metadata, text, section titles, figures, and ref
    install
    usage
    notes
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

@@ -7,19 +7,18 @@ Different Settings:
 
 Cross-Reference Tool
 ~~~~~~~~~~~~~~~~~~~~
-Setting to find cross-references and connections between input publications
-* If database tool is also turned on, the program will also compare the input publications with publications already in the database
-* See Connections Page to see what connections are defined
+* Setting to find cross-references and connections between input publications
+  * If database tool is also turned on, the program will find connections the input publications has with publications already in the database
+  * See Connections Page to see what connections are defined
 
 Add To Database Tool
 ~~~~~~~~~~~~~~~~~~~~
-Setting to add extracted data into the a database
-* Database schema must have tables and columns that are defined in Tables Page
+* Setting to add extracted data into the database
+  * Database schema must have tables and columns that are defined in Tables Page
 
 Write To File Tool
 ~~~~~~~~~~~~~~~~~~
-Setting to write all extracted into the same directories that contain figures and figure captions for a publication
-
+Setting to write all extracted data into the same directories that contain figures and figure captions for a publication
 
 
 Before Running the program
@@ -33,5 +32,5 @@ Before Running the program
 Running the program
 --------------------
 
-In the HaptipediaExtractor directory to run, type in the command line
-  ``run main.py``
+In the HaptipediaExtractor directory, type in the command line
+``run main.py``
