@@ -8,12 +8,14 @@ Different Settings:
 Cross-Reference Tool
 ~~~~~~~~~~~~~~~~~~~~
 * Setting to find cross-references and connections between input publications
+
   * If database tool is also turned on, the program will find connections the input publications has with publications already in the database
   * See Connections Page to see what connections are defined
 
 Add To Database Tool
 ~~~~~~~~~~~~~~~~~~~~
 * Setting to add extracted data into the database
+
   * Database schema must have tables and columns that are defined in Tables Page
 
 Write To File Tool
