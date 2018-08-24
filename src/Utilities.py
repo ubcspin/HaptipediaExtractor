@@ -4,6 +4,24 @@ import re
 Module to compare authors, titles and references
 """
 
+"""
+reference_to_dict(references)
+
+Purpose: turns a list of reference objects into a dictionary (to become a JSON file later)
+Parameters: references - array of reference objects
+Returns: references - a dictionary of reference objects
+"""
+
+
+def reference_to_dict(references):
+    refs_dict = {'references': []}
+    for reference in references:
+        ref_dict = {'title': reference.title, 'authors': reference.authors, 'publisher': reference.publisher,
+                    'times_cited': reference.timesCited}
+        refs_dict['references'].append(ref_dict)
+
+    return refs_dict
+
 
 """
 modify_name(title)
@@ -22,6 +40,28 @@ def modify_name(title):
     title = ''.join(filter(allowed_char.__contains__, title))
     title = title.lower()
     return title
+
+
+"""
+check_dates(ref1, ref2):
+
+Purpose: finds the publishing year of two reference object and compares them if they are the same
+Parameters: ref1 - reference object
+            ref2 - reference object
+Returns: Boolean, whether their dates match or not, if date not available, assume its true
+"""
+
+
+def check_dates(ref1, ref2):
+    date1 = re.findall(r'\d\d\d\d', ref1['publisher']['date'])
+    date2 = re.findall(r'\d\d\d\d', ref2['publisher']['date'])
+
+    if len(date1) != 0 and len(date2) != 0:
+        return date1[0] == date2[0]
+    else:
+        #if one of the dates is not extracted, assume that they are the same reference if the titles are similar to each
+        # other
+        return True
 
 
 """

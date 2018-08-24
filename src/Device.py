@@ -9,8 +9,8 @@ class Device:
         self.key = modify_name(name)
         self.refs = [] # a list of reference objects
         self.ref_titles = [] # a list of reference object titles
-        self.citations = []
-        self.back_references = []
+        self.forward_refs = []
+        self.backward_refs = []
         self.authors = []
         self.affiliates = []
         self.abstract = ''

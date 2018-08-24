@@ -7,10 +7,10 @@ writeToFile default setting is False
 
 'Example:'
 
-input_dir = r'C:/Users/john_/Desktop/TestPDF/prototype_data'
-output_dir = r'C:/Users/john_/Desktop/TestPDF/outputs\\'
-pdffigures2_dir = r'C:/Users/john_/Desktop/TestPDF/pdffigures2'
+pdffigures2_dir = '/mnt/c/Users/john_/Desktop/TestPDF/pdffigures2'
 thread_count = '4'
 should_init_crossrefs = True
 add_to_db = True
 writeToFile = False
+
+

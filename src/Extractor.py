@@ -4,6 +4,8 @@ import time
 import requests
 import subprocess
 import json
+from ConfigPaths import add_to_db
+from DatabaseFunctionalityModules.DatabaseConnection import check_database
 from Device import get_devices
 from Parser import parse_file
 
@@ -16,6 +18,24 @@ start_time = time.time()
 trans_table = str.maketrans(' ', '_')
 
 main_dir = os.getcwd()
+
+
+def check_resources():
+    try:
+        requests.post('http://localhost:8070/api/isalive')
+    except:
+        print("GROBID NOT RUNNING IN BACKGROUND, PLEASE TURN IT ON >:(")
+        return False
+
+    if add_to_db:
+        database_is_up = check_database()
+        if database_is_up:
+            return True
+        else:
+            print("DATABASE NOT CONFIGURED")
+            return False
+    else:
+        return True
 
 
 """
@@ -73,6 +93,7 @@ Parameters: output_dir - directory that contains all the XML and JSON files
 Returns: none
 """
 
+
 def clean_output_folder(output_dir):
     os.chdir(output_dir)
     if not os.path.exists('JSON and XML Files'):
@@ -94,27 +115,27 @@ Returns: none
 
 def organize_images(pdf_name, folder_name):
 
-    os.chdir('temp_imgs')
-    pdf_length = len(pdf_name) + 1 # to take into account the dash at the end and 0-index
+    if os.path.exists('temp_imgs'):
+        os.chdir('temp_imgs')
+        pdf_length = len(pdf_name) + 1 # to take into account the dash at the end and 0-index
 
-    # figures are named in the form pdf_name-FigureX-XX.png
-    pdfs = glob.glob(pdf_name + '-Figure' + "*" +".png") + glob.glob(pdf_name + '-Table' + "*" +".png")
+        # figures are named in the form pdf_name-FigureX-XX.png
+        pdfs = glob.glob(pdf_name + '-Figure' + "*" +".png") + glob.glob(pdf_name + '-Table' + "*" +".png")
 
-    for pdf in pdfs:
-        # new name of the pdf is now FigureX
-        count = 1
-        new_name = pdf[pdf_length:-6] + '.png'
-        dest = '../' + folder_name + '/Figures/' + new_name
-        if os.path.exists(dest):
-            dest = dest[:-4] + '(' + str(count) + ').png'
-            count += 1
-            # if the name still exists, keep increasing count until new name is not yet created
-            while os.path.exists(dest):
-                dest = dest[:-7] + '(' + str(count) + ').png'
+        for pdf in pdfs:
+            # new name of the pdf is now FigureX
+            count = 1
+            new_name = pdf[pdf_length:-6] + '.png'
+            dest = '../' + folder_name + '/Figures/' + new_name
+            if os.path.exists(dest):
+                dest = dest[:-4] + '(' + str(count) + ').png'
                 count += 1
-        os.rename(pdf, dest)
-
-    os.chdir('..')
+                # if the name still exists, keep increasing count until new name is not yet created
+                while os.path.exists(dest):
+                    dest = dest[:-7] + '(' + str(count) + ').png'
+                    count += 1
+            os.rename(pdf, dest)
+        os.chdir('..')
 
 
 """
@@ -180,7 +201,7 @@ def data_extractor(input_dir, output_dir):
 
             file_name = os.path.splitext(file)[0]
 
-            XMLfile = open(output_dir + file_name + ".xml", 'w+', encoding='utf8')
+            XMLfile = open(output_dir + '/' + file_name + ".xml", 'w+', encoding='utf8')
 
             XMLfile.write(tei_result)
             XMLfile.close()
@@ -208,24 +229,20 @@ def extract_figures(input_dir, output_dir, pdffigures2_dir, thread_count):
     # go to the director of where the PDF's are located
     os.chdir(input_dir)
 
-    # remove spaces from names of PDF's since spaces causes pdffigures2 to skip pdf
-    for file in glob.glob("*.pdf"):
-        remove_space(file)
-
     os.chdir(pdffigures2_dir)
 
-    image_outputs = output_dir + r'\temp_imgs\\'
+    image_outputs = output_dir + '/temp_imgs/'
     if not os.path.exists(image_outputs):
         os.makedirs(image_outputs)
 
-    stat_file = output_dir + r'\stats.json'
+    stat_file = output_dir + '/stats.json'
 
     command = ' '.join(['run-main', 'org.allenai.pdffigures2.FigureExtractorBatchCli', input_dir, '-m', image_outputs, '-d', output_dir, '-s', stat_file, '-t', thread_count, '-e'])
     sbt_command = ' '.join(['sbt', '"' + command + '"'])
     try:
         subprocess.Popen(sbt_command, shell=True, universal_newlines=True).communicate()
     except Exception as e:
-        raise e
+        print(e)
 
 
 """

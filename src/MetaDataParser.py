@@ -1,3 +1,5 @@
+import re
+
 class Affiliate:
     def __init__(self):
         self.institute = ''
@@ -88,9 +90,12 @@ def find_affiliations(src):
 
     return affiliates
 
+
 """
 Parser for a papers publication
 """
+
+
 def parsePub(root, device):
 
     publicationStmt = next(root.iter("{http://www.tei-c.org/ns/1.0}publicationStmt"))
@@ -98,10 +103,21 @@ def parsePub(root, device):
     if publicationStmt is not None:
         try:
             date = publicationStmt.find("{http://www.tei-c.org/ns/1.0}date").text
-            device.date = date
+            device.date = find_year(date)
         except:
             pass
 
         publisher = publicationStmt.find("{http://www.tei-c.org/ns/1.0}publisher").text
         if publisher is not None:
             device.publisher = publisher
+
+
+def find_year(date):
+    if date is not None:
+        if type(date) is str:
+            year = re.findall(r'\d\d\d\d', date)
+            return year[0]
+        else:
+            return ''
+    else:
+        return ''

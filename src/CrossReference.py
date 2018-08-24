@@ -1,6 +1,6 @@
 import re
 import time
-from CompareUtil import calculate_tol, modify_name, is_same_author
+from Utilities import calculate_tol, modify_name, is_same_author, check_dates
 """
 Use a dictionary for visited connections to reduce runtime in lookup
 Since __contains__ function in dict are implemented with a hashtable
@@ -65,8 +65,8 @@ def create_crossrefs(connections):
     for conn in connections:
         conn = connections[conn]
         if conn.is_cited:
-            conn.device.back_references.append(conn.connected_device.name)
-            conn.connected_device.citations.append(conn.device.name)
+            conn.device.backward_refs.append({'target': conn.connected_device.name, 'times_cited': conn.times_cited})
+            conn.connected_device.forward_refs.append({'target': conn.device.name, 'times_cited': conn.times_cited})
 
 
 """
@@ -141,33 +141,11 @@ def check_refs(device1, device2):
     shared_refs = []
     for ref1 in device1.refs:
         for ref2 in device2.refs:
-            tol = calculate_tol(ref1.title, ref2.title)
+            tol = calculate_tol(ref1['title'], ref2['title'])
             if tol > 0.75 and check_dates(ref1, ref2):
                 shared_refs.append(ref1)
 
     return shared_refs
-
-
-"""
-check_dates(ref1, ref2):
-
-Purpose: finds the publishing year of two reference object and compares them if they are the same
-Parameters: ref1 - reference object
-            ref2 - reference object
-Returns: Boolean, whether their dates match or not, if date not available, assume its true
-"""
-
-
-def check_dates(ref1, ref2):
-    date1 = re.findall(r'\d\d\d\d', ref1.publisher['date'])
-    date2 = re.findall(r'\d\d\d\d', ref2.publisher['date'])
-
-    if len(date1) != 0 and len(date2) != 0:
-        return date1[0] == date2[0]
-    else:
-        #if one of the dates is not extracted, assume that they are the same reference if the titles are similar to each
-        # other
-        return True
 
 
 """
@@ -241,14 +219,14 @@ device_cited_comp_device: if true, device cited comp_device. if false, comp_devi
 
 def check_crossref(device, comp_device):
     for ref in device.refs:
-        score = calculate_tol(comp_device.key, modify_name(ref.title))
-        if score > 0.70:
-            return True, ref.timesCited, True
+        score = calculate_tol(comp_device.key, modify_name(ref['title']))
+        if score > 0.75:
+            return True, ref['times_cited'], True
 
     for ref in comp_device.refs:
-        score = calculate_tol(device.key, modify_name(ref.title))
-        if score > 0.70:
-            return True, ref.timesCited, False
+        score = calculate_tol(device.key, modify_name(ref['title']))
+        if score > 0.75:
+            return True, ref['times_cited'], False
 
     return False, 0, False
 

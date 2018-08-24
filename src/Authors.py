@@ -1,4 +1,4 @@
-from CompareUtil import is_same_author
+from Utilities import is_same_author
 
 authors = []
 

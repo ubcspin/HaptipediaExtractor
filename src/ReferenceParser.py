@@ -22,6 +22,15 @@ class Reference:
         self.locations_cited = []
 
 
+def init_ref_dict(title, ref_number):
+    reference = {'title': title, 'ref_number': ref_number}
+    reference['authors'] = []
+    reference['publisher'] = init_publisher_dict()
+    reference['times_cited'] = 1
+    reference['locations_cited'] = []
+
+    return reference
+
 """
 Reference Parser that takes citation information from SectionParser to include in ref objects
 
@@ -48,7 +57,7 @@ def parseReference(XMLroot, device, cite_vals, citation_placements, unaccounted_
                 title = ref.find("{http://www.tei-c.org/ns/1.0}title").text
 
                 if title is not None:
-                    reference = Reference(title, count)
+                    reference = init_ref_dict(title, count)
 
                     try:
                         writeAuthors(ref, reference)
@@ -57,10 +66,10 @@ def parseReference(XMLroot, device, cite_vals, citation_placements, unaccounted_
                     try:
                         writePublishers(title, biblStruct, reference)
                         if count in cite_vals:
-                            reference.timesCited = cite_vals[count]
-                            reference.locations_cited = citation_placements[count]
+                            reference['times_cited'] = cite_vals[count]
+                            reference['locations_cited'] = citation_placements[count]
                         device.refs.append(reference)
-                        device.ref_titles.append(reference.title)
+                        device.ref_titles.append(reference['title'])
                     except Exception as e:
                         print(e)
                         print("problem writing publisher")
@@ -85,9 +94,9 @@ def update_unaccounted_citations(unaccounted_citations, reference):
     remaining_unaccounted_citations = []
     for citation in unaccounted_citations:
         if check_reference(citation[0], reference):
-            reference.timesCited += 1
-            if citation[1] not in reference.locations_cited:
-                reference.locations_cited.append(citation[1])
+            reference['times_cited'] += 1
+            if citation[1] not in reference['locations_cited']:
+                reference['locations_cited'].append(citation[1])
         else:
             # if citation is not connected to this reference, add it into the new list
             remaining_unaccounted_citations.append(citation)
@@ -101,11 +110,11 @@ Compares the reference year and the year on the citation, if they are the same, 
 
 
 def check_reference(citation, reference):
-    ref_year = re.findall(r'\d\d\d\d', reference.publisher['date'])
+    ref_year = re.findall(r'\d\d\d\d', reference['publisher']['date'])
     cite_year = re.findall(r'\d\d\d\d', citation)
 
     if cite_year != '' and ref_year != '' and cite_year == ref_year:
-        return check_authors(citation, reference.authors)
+        return check_authors(citation, reference['authors'])
     else:
         return False
 
@@ -153,13 +162,13 @@ def writePublishers(title, biblStruct, ref_object):
     if publisher is not None:
         publisher_name = publisher.text
         publisher = publisher_title + ", " + publisher_name
-        ref_object.publisher['name'] = publisher
+        ref_object['publisher']['name'] = publisher
 
     dateElem = imprint.find("{http://www.tei-c.org/ns/1.0}date")
     if dateElem is not None:
         if dateElem.get('type') == "published":
             date = dateElem.get('when')
-            ref_object.publisher['date'] = date
+            ref_object['publisher']['date'] = date
 
     for biblScope in imprint.findall("{http://www.tei-c.org/ns/1.0}biblScope"):
 
@@ -170,11 +179,11 @@ def writePublishers(title, biblStruct, ref_object):
             if unit == 'page':
                 if biblScope.get('from') and biblScope.get('to') is not None:
                     pages = biblScope.get('from') + " to " + biblScope.get('to')
-                    ref_object.publisher['pages'] = pages
+                    ref_object['publisher']['pages'] = pages
             elif unit == 'volume':
-                ref_object.publisher['volume'] = val
+                ref_object['publisher']['volume'] = val
             elif unit == 'issue':
-                ref_object.publisher['issue'] = val
+                ref_object['publisher']['issue'] = val
         except Exception as e:
             print(e)
             pass
@@ -203,7 +212,7 @@ def writeAuthors(ref, ref_object):
                     name = ''
 
             if name is not '':
-                ref_object.authors.append(name)
+                ref_object['authors'].append(name)
 
         except:
             pass

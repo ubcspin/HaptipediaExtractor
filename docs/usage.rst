@@ -28,11 +28,10 @@ Before Running the program
 1. Make sure GROBID is running in the background somewhere
 2. Path to PDFFigures2 is written in ConfigPaths.py
 3. Change AllowOCR = True in PDFFigures2
-4. Input and Output Directories is written in ConfigPaths.py
+4. Put All PDF's to process in the directory HaptipediaExtractor/inputs
 5. Have all desired settings set to True or False in ConfigPaths.py
 
 Running the program
 --------------------
 
-In the HaptipediaExtractor directory, type in the command line
-``run main.py``
+In the HaptipediaExtractor/src directory, run ``main.py``
