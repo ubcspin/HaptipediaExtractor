@@ -17,7 +17,9 @@ def build_author_list(devices):
         for author in devices[device].authors:
             has_seen, author_obj = has_seen_author(author)
             if has_seen:
-                author_obj.publications.append(devices[device].name)
+                name = devices[device].name
+                if name not in author_obj.publications:
+                    author_obj.publications.append(name)
             else:
                 new_author = Author(author)
                 new_author.publications.append(devices[device].name)

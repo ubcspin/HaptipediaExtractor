@@ -49,7 +49,6 @@ def get_data(cursor):
 def update_authors(pubs, authors, cursor):
     for author in authors:
         author_pubs = author[2]
-        # TODO: can be optimized later
         for pub in pubs:
             # change the name of the publication to the publication id
             author_pubs = [pub[0] if x == pub[1] else x for x in author_pubs]

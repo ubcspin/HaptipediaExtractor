@@ -17,6 +17,7 @@ Add To Database Tool
 * Setting to add extracted data into the database
 
   * Database schema must have tables and columns that are defined in Tables Page
+  * Set-up database info in DatabaseInfo.py
 
 Write To File Tool
 ~~~~~~~~~~~~~~~~~~
@@ -30,6 +31,7 @@ Before Running the program
 3. Change AllowOCR = True in PDFFigures2
 4. Put All PDF's to process in the directory HaptipediaExtractor/inputs
 5. Have all desired settings set to True or False in ConfigPaths.py
+6. Set Database Info in DatabaseInfo.py
 
 Running the program
 --------------------

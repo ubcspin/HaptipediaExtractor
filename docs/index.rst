@@ -9,6 +9,8 @@ A python wrapper for extracting metadata, text, section titles, figures, and ref
 of figures and figure captions and GROBID for extraction of references, section text and titles. Also has a cross-reference function to find connections between
 given paper inputs (which papers cited each other and how many times, shared authors and references between papers).
 
+https://github.com/ubcspin/HaptipediaExtractor
+
 
 .. toctree::
    :maxdepth: 2
