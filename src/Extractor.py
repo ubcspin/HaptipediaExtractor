@@ -24,7 +24,7 @@ def check_resources():
     try:
         requests.post('http://localhost:8070/api/isalive')
     except:
-        print("GROBID NOT RUNNING IN BACKGROUND, PLEASE TURN IT ON >:(")
+        print("GROBID NOT RUNNING IN BACKGROUND")
         return False
 
     if add_to_db:
