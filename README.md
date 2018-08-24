@@ -25,7 +25,7 @@ https://haptipediaextractor.readthedocs.io/en/latest/
 2. Have GROBID running in the background somewhere
 
 # GROBID
-Grobid is used to extract metadata, text and citations from PDF files. Grobid should be running as a service somwhere. (Run mvn jetty:run-war from grobid-service directory if not already running. See Grobid's Github project for more complete installation instructions.)
+Grobid is used to extract metadata, text and citations from PDF files. Grobid should be running as a service somwhere. (See Grobid's Github project for more complete installation instructions.)
 
 # PDFFigures2.0
 Pdffigures2.0 is used to extract figures, tables and captions from PDF files. It should be installed as directed by the pdffigures2 Github page. The path to the pdffigures2 binary can be configured in ConfigPaths.py
