@@ -24,24 +24,24 @@ if __name__ == '__main__':
 
     if is_ready_to_run:
         # remove spaces from names of PDF's since spaces causes pdffigures2 to skip pdf
-        # os.chdir(input_dir)
-        # for file in glob.glob("*.pdf"):
-        #     extractor.remove_space(file)
-        #
-        # print("GROBID extracting text, metadata and references")
-        # try:
-        #     extractor.data_extractor(input_dir, output_dir)
-        # except Exception as e:
-        #     print(e)
-        #     sys.exit("GROBID encountered an error")
-        #
-        # print("PDFFigures2.0 extracting figures and figure captions")
-        #
-        # try:
-        #     extractor.extract_figures(input_dir, output_dir, pdffigures2_dir, thread_count)
-        # except Exception as e:
-        #     print(e)
-        #     sys.exit("PDFFigures encountered an error")
+        os.chdir(input_dir)
+        for file in glob.glob("*.pdf"):
+            extractor.remove_space(file)
+
+        print("GROBID extracting text, metadata and references")
+        try:
+            extractor.data_extractor(input_dir, output_dir)
+        except Exception as e:
+            print(e)
+            sys.exit("GROBID encountered an error")
+
+        print("PDFFigures2.0 extracting figures and figure captions")
+
+        try:
+            extractor.extract_figures(input_dir, output_dir, pdffigures2_dir, thread_count)
+        except Exception as e:
+            print(e)
+            sys.exit("PDFFigures encountered an error")
 
         print("Parsing XML and JSON Files")
         try:
