@@ -35,5 +35,6 @@ Before Running the program
 
 Running the program
 --------------------
-
-In the HaptipediaExtractor/src directory, run ``main.py``
+1. To set-up the database, run in HaptipediaExtractor/src ``DBConfiguration.py``
+  * Make sure to have set the database info inside DatabaseInfo.py
+2. In the HaptipediaExtractor/src directory, run ``main.py``

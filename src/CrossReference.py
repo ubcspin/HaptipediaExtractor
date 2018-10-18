@@ -25,6 +25,7 @@ class Connection:
         self.connected_device = connected_device
         self.key = device.name + connected_device.name
         self.is_cited = False
+        self.is_main_connection = False
         self.times_cited = ''
         self.shared_authors = []
         self.shared_refs = []
@@ -43,7 +44,7 @@ Returns: all connections found
 """
 
 
-def initialize_connections(devices):
+def initialize_connections(devices, is_main_pubs):
     count = 1
     start = time.time()
     for device in devices:
@@ -51,7 +52,7 @@ def initialize_connections(devices):
             if device != comparison_device:
                 comp_device = devices[comparison_device]
                 main_device = devices[device]
-                check_connection(main_device, comp_device)
+                check_connection(main_device, comp_device, is_main_pubs)
         finish = time.time()
         print("Average time taken for %s is %s" % (str(count), str((finish - start)/count)))
         count += 1
@@ -65,8 +66,8 @@ def create_crossrefs(connections):
     for conn in connections:
         conn = connections[conn]
         if conn.is_cited:
-            conn.device.backward_refs.append({'target': conn.connected_device.name, 'times_cited': conn.times_cited})
-            conn.connected_device.forward_refs.append({'target': conn.device.name, 'times_cited': conn.times_cited})
+            conn.device.backward_refs.append({'is_main_connection': conn.is_main_connection, 'target': conn.connected_device.name, 'times_cited': conn.times_cited})
+            conn.connected_device.forward_refs.append({'is_main_connection': conn.is_main_connection,'target': conn.device.name, 'times_cited': conn.times_cited})
 
 
 """
@@ -153,7 +154,7 @@ Checks if there is a connection between these two devices
 """
 
 
-def check_connection(device, comp_device):
+def check_connection(device, comp_device, is_main_pubs):
 
     if not in_visited(device, comp_device):
 
@@ -165,14 +166,17 @@ def check_connection(device, comp_device):
         if is_cited:
             if device_cited_comp_device:
                 connection = create_connection(device, comp_device, is_cited, times_cited, shared_authors, shared_refs)
+                connection.is_main_connection = is_main_pubs
 
             else:
                 connection = create_connection(comp_device, device, is_cited, times_cited, shared_authors, shared_refs)
+                connection.is_main_connection = is_main_pubs
             connections[connection.key] = connection
 
         else:
             if shared_authors != [] or shared_refs != []:
                 connection = create_connection(device, comp_device, is_cited, times_cited, shared_authors, shared_refs)
+                connection.is_main_connection = is_main_pubs
                 connections[connection.key] = connection
 
 

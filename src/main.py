@@ -2,6 +2,7 @@ import sys
 import time
 import glob
 import os
+import argparse
 import Extractor as extractor
 import ConfigPaths as config
 import CrossReference as crossref
@@ -14,16 +15,29 @@ input_dir = os.path.abspath('../inputs/') + '/'
 output_dir = os.path.abspath('../outputs/') + '/'
 pdffigures2_dir = config.pdffigures2_dir
 thread_count = config.thread_count
+pdfs_are_main_pubs = False
 
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-m', '--main', help='PDF Files are main publications', action='store_true')
+    args = parser.parse_args()
+
+    if args.main:
+        print("PDF Files are mains")
+        pdfs_are_main_pubs = True
+
+    else:
+        print("PDF FIles are not all mains or are secondaries")
+        pdfs_are_main_pubs = False
 
     init_start = time.time()
 
     is_ready_to_run = extractor.check_resources()
 
     if is_ready_to_run:
-        # remove spaces from names of PDF's since spaces causes pdffigures2 to skip pdf
+        "remove spaces from names of PDF's since spaces causes pdffigures2 to skip pdf"
         os.chdir(input_dir)
         for file in glob.glob("*.pdf"):
             extractor.remove_space(file)
@@ -54,12 +68,12 @@ if __name__ == '__main__':
         authors = []
         if config.should_init_crossrefs:
             start = time.time()
-            connections = crossref.initialize_connections(devices)
+            connections = crossref.initialize_connections(devices, pdfs_are_main_pubs)
             finish = time.time()
             print("Initialized Connections in %f seconds" % (finish - start))
         if config.add_to_db:
             authors = build_author_list(devices)
-            add_data(devices, connections, authors)
+            add_data(devices, connections, authors, pdfs_are_main_pubs)
             fix_pub_and_author_id()
         if config.writeToFile:
             start = time.time()
