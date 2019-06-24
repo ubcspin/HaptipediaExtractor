@@ -12,8 +12,8 @@ import re
 
 
 class Reference:
-    def __init__(self, title, refNumber):
-        self.refNumber = refNumber
+    def __init__(self, title, ref_number):
+        self.ref_number = ref_number
         self.title = title
         self.key = modify_name(title)
         self.authors = []
