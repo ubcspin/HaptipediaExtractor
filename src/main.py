@@ -11,26 +11,26 @@ from DatabaseFunctionalityModules.DatabaseConnection import add_data
 from DatabaseFunctionalityModules.ID_Fixer import fix_pub_and_author_id
 from Authors import build_author_list
 
-input_dir = os.path.abspath('../inputs/') + '/'
-output_dir = os.path.abspath('../outputs/') + '/'
+input_dir = os.path.join(os.getcwd(), 'inputs/')
+output_dir = os.path.join(os.getcwd(), 'outputs/')
 pdffigures2_dir = config.pdffigures2_dir
 thread_count = config.thread_count
-pdfs_are_main_pubs = False
+pdfs_are_main_pubs = True
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m', '--main', help='PDF Files are main publications', action='store_true')
+    parser.add_argument('-s', '--secondary', help='PDF Files have some secondary publications', action='store_true')
     args = parser.parse_args()
 
     if args.main:
-        print("PDF Files are mains")
-        pdfs_are_main_pubs = True
-
-    else:
         print("PDF FIles are not all mains or are secondaries")
         pdfs_are_main_pubs = False
+
+    else:
+        print("PDF Files are mains")
+        pdfs_are_main_pubs = True
 
     init_start = time.time()
 
