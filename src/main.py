@@ -23,8 +23,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-s', '--secondary', help='PDF Files have some secondary publications', action='store_true')
     args = parser.parse_args()
+    print(args)
 
-    if args.main:
+    if args.secondary:
         print("PDF FIles are not all mains or are secondaries")
         pdfs_are_main_pubs = False
 
